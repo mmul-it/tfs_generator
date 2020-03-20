@@ -1,0 +1,17 @@
+---
+
+- name: Deploy variables template
+  template:
+    src: variables.tf.j2
+    dest: /home/ansible/terraform_conf/variables.tf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Deploy Frontend template
+  template:
+    src: frontend.tf.j2
+    dest: /home/ansible/terraform_conf/frontend.tf
+    owner: root
+    group: root
+    mode: 0644

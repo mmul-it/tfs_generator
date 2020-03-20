@@ -1,0 +1,59 @@
+variable "vm_hostnames" {
+  description = "List of vm names"
+  type        = map
+  default     = {
+    {% for vm in groups['nodes'] %}
+    {{ vm }} = {{ hostvars[vm].internal_ip }}
+    {% endfor -%}
+  }
+}
+
+resource "azurerm_network_interface" "vm_nics" {
+  for_each              = var.vm_hostnames
+  name                  = "nic1_${each.key}"
+  resource_group_name   = var.resource_group_name
+  location              = var.location
+
+  ip_configuration {
+    name                          = "ip_${each.key}"
+    subnet_id                     = azurerm_subnet.vnet01_srv_subnet.id
+    #private_ip_address_allocation = "Dynamic"
+    private_ip_address_allocation = "Static"
+    private_ip_address            = each.value
+  }
+}
+
+resource "azurerm_virtual_machine" "vm_frontend" {
+  depends_on            = [azurerm_network_interface.vm_nics]
+  for_each              = var.vm_hostnames
+  name                  = each.key
+  vm_size               = "Standard_B1s"
+  resource_group_name   = var.resource_group_name
+  location              = var.location
+  network_interface_ids = [azurerm_network_interface.vm_nics["${each.key}"].id]
+
+  storage_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+    version   = "latest"
+  }
+
+  storage_os_disk {
+    name              = "disk1_${each.key}"
+    disk_size_gb      = "45"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
+  }
+
+  os_profile {
+    computer_name  = each.key
+    admin_username = "mmuladmin"
+    admin_password = "CommifyPoc1234!"
+  }
+
+  os_profile_linux_config {
+    disable_password_authentication = false
+  }
+}
