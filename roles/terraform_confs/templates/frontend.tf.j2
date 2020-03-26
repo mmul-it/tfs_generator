@@ -3,7 +3,7 @@ variable "vm_hostnames" {
   type        = map
   default     = {
     {% for vm in groups['nodes'] %}
-    {{ vm }} = {{ hostvars[vm].internal_ip }}
+    {{ vm }} = "{{ hostvars[vm].internal_ip }}"
     {% endfor -%}
   }
 }
@@ -16,7 +16,7 @@ resource "azurerm_network_interface" "vm_nics" {
 
   ip_configuration {
     name                          = "ip_${each.key}"
-    subnet_id                     = azurerm_subnet.vnet01_srv_subnet.id
+    subnet_id                     = azurerm_subnet.{{ azure_subnet_name }}.id
     #private_ip_address_allocation = "Dynamic"
     private_ip_address_allocation = "Static"
     private_ip_address            = each.value
@@ -55,5 +55,10 @@ resource "azurerm_virtual_machine" "vm_frontend" {
 
   os_profile_linux_config {
     disable_password_authentication = false
+  }
+
+  boot_diagnostics {
+    enabled             = true
+    storage_uri = azurerm_storage_account.{{ azure_storage_account_name }}.primary_blob_endpoint
   }
 }
