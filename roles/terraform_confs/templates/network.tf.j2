@@ -1,3 +1,8 @@
+# Subnet that will be created
+{% for subnet in subnets %}
+# {{ subnet.name }} {{ subnet.prefix }}
+{% endfor %}
+
 # Virtual network creation block
 resource "azurerm_virtual_network" "{{ azure_vnet_name }}" {
   name                = "{{ azure_vnet_name }}"
@@ -7,16 +12,20 @@ resource "azurerm_virtual_network" "{{ azure_vnet_name }}" {
   depends_on          = [azurerm_resource_group.{{ azure_resource_group_name }}]
 }
 
-# Subnet creation block
-resource "azurerm_subnet" "{{ azure_subnet_name }}" {
-  name                 = "{{ azure_subnet_name }}"
+# Subnet creation block(s)
+{% for subnet in subnets %}
+resource "azurerm_subnet" "{{ subnet.name }}" {
+  name                 = "{{ subnet.name }}"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.{{ azure_vnet_name }}.name
-  address_prefix       = "{{ azure_subnet_addr_prefix }}"
+  address_prefix       = "{{ subnet.prefix }}"
   depends_on           = [azurerm_virtual_network.{{ azure_vnet_name }}]
 }
 
+{% endfor -%}
+
 # Gateway subnet creation block (required for vpn P2S) please notice that
+# the name "GatewaySubnet" is mandatory for Azure
 resource "azurerm_subnet" "{{ azure_gw_subnet_name }}" {
   name                 = "GatewaySubnet"
   resource_group_name  = var.resource_group_name

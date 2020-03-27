@@ -1,9 +1,13 @@
 ---
 
+- name: Include a subnet list as a var file
+  include_vars:
+    file: roles/terraform_confs/vars/subnet_list.yml
+
 - name: Deploy Variables template
   template:
     src: variables.tf.j2
-    dest: variables.tf
+    dest: /home/ansible/terraform/variables.tf
     owner: root
     group: root
     mode: 0644
@@ -11,7 +15,7 @@
 - name: Deploy Provider template
   template:
     src: provider.tf.j2
-    dest: provider.tf
+    dest: /home/ansible/terraform/provider.tf
     owner: root
     group: root
     mode: 0644
@@ -19,7 +23,7 @@
 - name: Deploy Resource Group template
   template:
     src: resource_group.tf.j2
-    dest: resource_group.tf
+    dest: /home/ansible/terraform/resource_group.tf
     owner: root
     group: root
     mode: 0644
@@ -27,7 +31,7 @@
 - name: Deploy Storage Account template
   template:
     src: storage.tf.j2
-    dest: resource_group.tf
+    dest: /home/ansible/terraform/storage.tf
     owner: root
     group: root
     mode: 0644
@@ -35,7 +39,7 @@
 - name: Deploy Frontend template
   template:
     src: frontend.tf.j2
-    dest: frontend.tf
+    dest: /home/ansible/terraform/frontend.tf
     owner: root
     group: root
     mode: 0644
@@ -43,7 +47,7 @@
 - name: Deploy Network template
   template:
     src: network.tf.j2
-    dest: network.tf
+    dest: /home/ansible/terraform/network.tf
     owner: root
     group: root
     mode: 0644
@@ -51,7 +55,7 @@
 - name: Deploy Network Security Rule template
   template:
     src: network_sec_group.tf.j2
-    dest: network_sec_group.tf
+    dest: /home/ansible/terraform/network_sec_group.tf
     owner: root
     group: root
     mode: 0644

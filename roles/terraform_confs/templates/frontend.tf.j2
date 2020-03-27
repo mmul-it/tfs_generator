@@ -16,8 +16,7 @@ resource "azurerm_network_interface" "vm_nics" {
 
   ip_configuration {
     name                          = "ip_${each.key}"
-    subnet_id                     = azurerm_subnet.{{ azure_subnet_name }}.id
-    #private_ip_address_allocation = "Dynamic"
+    subnet_id                     = azurerm_subnet.server_subnet.id
     private_ip_address_allocation = "Static"
     private_ip_address            = each.value
   }
