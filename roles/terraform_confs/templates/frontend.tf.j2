@@ -1,35 +1,29 @@
-variable "vm_hostnames" {
-  description = "List of vm names"
-  type        = map
-  default     = {
-    {% for vm in groups['nodes'] %}
-    {{ vm }} = "{{ hostvars[vm].internal_ip }}"
-    {% endfor -%}
-  }
-}
-
-resource "azurerm_network_interface" "vm_nics" {
-  for_each              = var.vm_hostnames
-  name                  = "nic1_${each.key}"
+# NIC creation blocks
+{% for vm in groups['nodes'] %}
+resource "azurerm_network_interface" "vm_nic_{{ vm }}" {
+  name                  = "nic1_{{ vm }}"
   resource_group_name   = var.resource_group_name
   location              = var.location
 
   ip_configuration {
-    name                          = "ip_${each.key}"
-    subnet_id                     = azurerm_subnet.server_subnet.id
+    name                          = "ip_{{ vm }}"
+    subnet_id                     = azurerm_subnet.{{ hostvars[vm].subnet }}.id
     private_ip_address_allocation = "Static"
-    private_ip_address            = each.value
+    private_ip_address            = "{{ hostvars[vm].internal_ip }}"
   }
 }
 
-resource "azurerm_virtual_machine" "vm_frontend" {
-  depends_on            = [azurerm_network_interface.vm_nics]
-  for_each              = var.vm_hostnames
-  name                  = each.key
+{% endfor -%}
+
+# Virtual machine creation blocks
+{% for vm in groups['nodes'] %}
+resource "azurerm_virtual_machine" "{{ vm }}" {
+  depends_on            = [azurerm_network_interface.vm_nic_{{ vm }}]
+  name                  = "{{ vm }}"
   vm_size               = "Standard_B1s"
   resource_group_name   = var.resource_group_name
   location              = var.location
-  network_interface_ids = [azurerm_network_interface.vm_nics["${each.key}"].id]
+  network_interface_ids = [azurerm_network_interface.vm_nic_{{ vm }}.id]
 
   storage_image_reference {
     publisher = "Canonical"
@@ -39,7 +33,7 @@ resource "azurerm_virtual_machine" "vm_frontend" {
   }
 
   storage_os_disk {
-    name              = "disk1_${each.key}"
+    name              = "disk1_{{ vm }}"
     disk_size_gb      = "45"
     caching           = "ReadWrite"
     create_option     = "FromImage"
@@ -47,7 +41,7 @@ resource "azurerm_virtual_machine" "vm_frontend" {
   }
 
   os_profile {
-    computer_name  = each.key
+    computer_name  = "{{ vm }}"
     admin_username = "mmuladmin"
     admin_password = "CommifyPoc1234!"
   }
@@ -61,3 +55,5 @@ resource "azurerm_virtual_machine" "vm_frontend" {
     storage_uri = azurerm_storage_account.{{ azure_storage_account_name }}.primary_blob_endpoint
   }
 }
+
+{% endfor %}
