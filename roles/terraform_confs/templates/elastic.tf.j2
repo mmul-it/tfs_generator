@@ -1,5 +1,5 @@
 # NIC creation blocks
-{% for vm in groups['nodes'] %}
+{% for vm in groups['elastic'] %}
 resource "azurerm_network_interface" "vm_nic_{{ vm }}" {
   name                  = "nic1_{{ vm }}"
   resource_group_name   = var.resource_group_name
@@ -16,14 +16,20 @@ resource "azurerm_network_interface" "vm_nic_{{ vm }}" {
 {% endfor -%}
 
 # Virtual machine creation blocks
-{% for vm in groups['nodes'] %}
+{% for vm in groups['elastic'] %}
+
+# {{ vm }} resource block
 resource "azurerm_virtual_machine" "{{ vm }}" {
   depends_on            = [azurerm_network_interface.vm_nic_{{ vm }}]
   name                  = "{{ vm }}"
-  vm_size               = "Standard_B1s"
+  vm_size               = "{{ hostvars[vm].vm_size }}"
   resource_group_name   = var.resource_group_name
   location              = var.location
   network_interface_ids = [azurerm_network_interface.vm_nic_{{ vm }}.id]
+
+  # Delete data disk at vm deletion
+  delete_os_disk_on_termination = true
+  delete_data_disks_on_termination = true
 
   storage_image_reference {
     publisher = "Canonical"
@@ -33,8 +39,8 @@ resource "azurerm_virtual_machine" "{{ vm }}" {
   }
 
   storage_os_disk {
-    name              = "disk1_{{ vm }}"
-    disk_size_gb      = "45"
+    name              = "osdisk_{{ vm }}"
+    disk_size_gb      = "{{ hostvars[vm].osdisk_size }}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
@@ -56,4 +62,23 @@ resource "azurerm_virtual_machine" "{{ vm }}" {
   }
 }
 
+# {{ vm }} disk1_{{ vm }} managed disk
+resource "azurerm_managed_disk" "disk1_{{ vm }}" {
+  depends_on           = [azurerm_virtual_machine.{{ vm }}]
+  name                 = "disk1_{{ vm }}"
+  resource_group_name  = var.resource_group_name
+  location             = var.location
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "{{ hostvars[vm].disk1_size }}"
+}
+
+# {{ vm }} disk1_{{ vm }} attach disk
+resource "azurerm_virtual_machine_data_disk_attachment" "disk1_{{ vm }}" {
+  depends_on         = [azurerm_managed_disk.disk1_{{ vm }}]
+  managed_disk_id    = azurerm_managed_disk.disk1_{{ vm }}.id
+  virtual_machine_id = azurerm_virtual_machine.{{ vm }}.id
+  lun                = "1"
+  caching            = "ReadWrite"
+}
 {% endfor %}

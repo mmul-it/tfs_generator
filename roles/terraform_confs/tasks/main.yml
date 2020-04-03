@@ -36,10 +36,82 @@
     group: root
     mode: 0644
 
-- name: Deploy Frontend template
+- name: Deploy Apache template
   template:
-    src: frontend.tf.j2
-    dest: /home/ansible/terraform/frontend.tf
+    src: apache.tf.j2
+    dest: /home/ansible/terraform/apache.tf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Deploy HAProxy template
+  template:
+    src: haproxy.tf.j2
+    dest: /home/ansible/terraform/haproxy.tf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Deploy Nginx template
+  template:
+    src: nginx.tf.j2
+    dest: /home/ansible/terraform/nginx.tf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Deploy Appserver template
+  template:
+    src: appserver.tf.j2
+    dest: /home/ansible/terraform/appserver.tf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Deploy Redis template
+  template:
+    src: redis.tf.j2
+    dest: /home/ansible/terraform/redis.tf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Deploy Elastic template
+  template:
+    src: elastic.tf.j2
+    dest: /home/ansible/terraform/elastic.tf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Deploy MySQL template
+  template:
+    src: mysql.tf.j2
+    dest: /home/ansible/terraform/mysql.tf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Deploy RabbitMQ template
+  template:
+    src: rabbitmq.tf.j2
+    dest: /home/ansible/terraform/rabbitmq.tf
+    owner: root
+    group: root
+    mode: 0644
+
+#- name: Deploy Zabbix Proxy template
+#  template:
+#    src: zabbixproxy.tf.j2
+#    dest: /home/ansible/terraform/zabbixproxy.tf
+#    owner: root
+#    group: root
+#    mode: 0644
+
+- name: Deploy Kannel Proxy template
+  template:
+    src: kannel.tf.j2
+    dest: /home/ansible/terraform/kannel.tf
     owner: root
     group: root
     mode: 0644
