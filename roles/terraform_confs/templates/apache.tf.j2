@@ -1,3 +1,8 @@
+# VM(s) that will be created:
+{% for vm in groups['apache'] %}
+# {{ vm }} - {{ hostvars[vm].internal_ip }}, {{ hostvars[vm].vm_size }}, disk1: {{ hostvars[vm].disk1_size }}GB, disk2: {{ hostvars[vm].disk2_size }}GB
+{% endfor %}
+
 # NIC creation blocks
 {% for vm in groups['apache'] %}
 resource "azurerm_network_interface" "vm_nic_{{ vm }}" {
@@ -20,12 +25,13 @@ resource "azurerm_network_interface" "vm_nic_{{ vm }}" {
 
 # {{ vm }} resource block
 resource "azurerm_virtual_machine" "{{ vm }}" {
-  depends_on            = [azurerm_network_interface.vm_nic_{{ vm }}]
-  name                  = "{{ vm }}"
-  vm_size               = "{{ hostvars[vm].vm_size }}"
-  resource_group_name   = var.resource_group_name
-  location              = var.location
-  network_interface_ids = [azurerm_network_interface.vm_nic_{{ vm }}.id]
+  depends_on                   = [azurerm_network_interface.vm_nic_{{ vm }}]
+  name                         = "{{ vm }}"
+  vm_size                      = "{{ hostvars[vm].vm_size }}"
+  resource_group_name          = var.resource_group_name
+  location                     = var.location
+  network_interface_ids        = [azurerm_network_interface.vm_nic_{{ vm }}.id]
+  primary_network_interface_id = azurerm_network_interface.vm_nic1_{{ vm }}.id
 
   # Delete data disk at vm deletion
   delete_os_disk_on_termination = true
@@ -78,7 +84,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "disk1_{{ vm }}" {
   depends_on         = [azurerm_managed_disk.disk1_{{ vm }}]
   managed_disk_id    = azurerm_managed_disk.disk1_{{ vm }}.id
   virtual_machine_id = azurerm_virtual_machine.{{ vm }}.id
-  lun                = "1"
+  lun                = "0"
   caching            = "ReadWrite"
 }
 
@@ -98,7 +104,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "disk2_{{ vm }}" {
   depends_on         = [azurerm_managed_disk.disk2_{{ vm }}]
   managed_disk_id    = azurerm_managed_disk.disk2_{{ vm }}.id
   virtual_machine_id = azurerm_virtual_machine.{{ vm }}.id
-  lun                = "2"
+  lun                = "1"
   caching            = "ReadWrite"
 }
 {% endfor %}

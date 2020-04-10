@@ -1,3 +1,8 @@
+# VM(s) that will be created:
+{% for vm in groups['zabbixproxy'] %}
+# {{ vm }} - {{ hostvars[vm].internal_ip }}, {{ hostvars[vm].vm_size }}, disk1: {{ hostvars[vm].disk1_size }}GB
+{% endfor %}
+
 # NIC creation blocks
 {% for vm in groups['zabbixproxy'] %}
 resource "azurerm_network_interface" "vm_nic_{{ vm }}" {
@@ -78,7 +83,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "disk1_{{ vm }}" {
   depends_on         = [azurerm_managed_disk.disk1_{{ vm }}]
   managed_disk_id    = azurerm_managed_disk.disk1_{{ vm }}.id
   virtual_machine_id = azurerm_virtual_machine.{{ vm }}.id
-  lun                = "1"
+  lun                = "0"
   caching            = "ReadWrite"
 }
 {% endfor %}

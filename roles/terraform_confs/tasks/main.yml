@@ -100,13 +100,13 @@
     group: root
     mode: 0644
 
-#- name: Deploy Zabbix Proxy template
-#  template:
-#    src: zabbixproxy.tf.j2
-#    dest: /home/ansible/terraform/zabbixproxy.tf
-#    owner: root
-#    group: root
-#    mode: 0644
+- name: Deploy Zabbix Proxy template
+  template:
+    src: zabbixproxy.tf.j2
+    dest: /home/ansible/terraform/zabbixproxy.tf
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Deploy Kannel Proxy template
   template:
