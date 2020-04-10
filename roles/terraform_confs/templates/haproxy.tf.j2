@@ -5,18 +5,35 @@
 
 # NIC creation blocks
 {% for vm in groups['haproxy'] %}
-resource "azurerm_network_interface" "vm_nic_{{ vm }}" {
+# Set primary_ip {{ vm }}
+resource "azurerm_network_interface" "vm_nic1_{{ vm }}" {
   name                  = "nic1_{{ vm }}"
   resource_group_name   = var.resource_group_name
   location              = var.location
 
   ip_configuration {
-    name                          = "ip_{{ vm }}"
+    name                          = "ip1_{{ vm }}"
     subnet_id                     = azurerm_subnet.{{ hostvars[vm].subnet }}.id
     private_ip_address_allocation = "Static"
     private_ip_address            = "{{ hostvars[vm].internal_ip }}"
   }
 }
+
+{% if hostvars[vm].secondary_ip is defined %}
+# Set secondary_ip {{ vm }}
+resource "azurerm_network_interface" "vm_nic2_{{ vm }}" {
+  name = "nic2_{{ vm }}"
+  resource_group_name = var.resource_group_name
+  location = var.location
+
+  ip_configuration {
+    name                          = "ip2_{{ vm }}"
+    subnet_id                     = azurerm_subnet.{{ hostvars[vm].alternative_subnet }}.id
+    private_ip_address_allocation = "Static"
+    private_ip_address            = "{{ hostvars[vm].secondary_ip }}"
+  }
+}
+{% endif %}
 
 {% endfor -%}
 
@@ -25,12 +42,17 @@ resource "azurerm_network_interface" "vm_nic_{{ vm }}" {
 
 # {{ vm }} resource block
 resource "azurerm_virtual_machine" "{{ vm }}" {
-  depends_on            = [azurerm_network_interface.vm_nic_{{ vm }}]
-  name                  = "{{ vm }}"
-  vm_size               = "{{ hostvars[vm].vm_size }}"
-  resource_group_name   = var.resource_group_name
-  location              = var.location
-  network_interface_ids = [azurerm_network_interface.vm_nic_{{ vm }}.id]
+  depends_on                   = [azurerm_network_interface.vm_nic1_{{ vm }}]
+  name                         = "{{ vm }}"
+  vm_size                      = "{{ hostvars[vm].vm_size }}"
+  resource_group_name          = var.resource_group_name
+  location                     = var.location
+{% if hostvars[vm].secondary_ip is defined %}
+  network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm }}.id, azurerm_network_interface.vm_nic2_{{ vm }}.id]
+{% else %}
+  network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm }}.id]
+{% endif %}
+  primary_network_interface_id = azurerm_network_interface.vm_nic1_{{ vm }}.id
 
   # Delete data disk at vm deletion
   delete_os_disk_on_termination = true
