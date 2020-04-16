@@ -36,6 +36,22 @@
     group: root
     mode: 0644
 
+- name: Deploy Network template
+  template:
+    src: network.tf.j2
+    dest: /home/ansible/terraform/network.tf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Deploy Network Security Rule template
+  template:
+    src: network_sec_group.tf.j2
+    dest: /home/ansible/terraform/network_sec_group.tf
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Deploy Apache template
   template:
     src: apache.tf.j2
@@ -112,22 +128,6 @@
   template:
     src: kannel.tf.j2
     dest: /home/ansible/terraform/kannel.tf
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Deploy Network template
-  template:
-    src: network.tf.j2
-    dest: /home/ansible/terraform/network.tf
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Deploy Network Security Rule template
-  template:
-    src: network_sec_group.tf.j2
-    dest: /home/ansible/terraform/network_sec_group.tf
     owner: root
     group: root
     mode: 0644
