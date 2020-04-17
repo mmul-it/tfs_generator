@@ -19,6 +19,12 @@ resource "azurerm_network_interface" "vm_nic1_{{ vm }}" {
   }
 }
 
+# Set Security Group to NIC
+resource "azurerm_network_interface_security_group_association" "{{ vm }}_nic1_to_{{ azure_network_sec_group_name }}" {
+  network_interface_id      = azurerm_network_interface.vm_nic1_{{ vm }}.id
+  network_security_group_id = azurerm_network_security_group.{{ azure_network_sec_group_name }}.id
+}
+
 {% if hostvars[vm].secondary_ip is defined %}
 # Set secondary_ip {{ vm }}
 resource "azurerm_network_interface" "vm_nic2_{{ vm }}" {
@@ -53,6 +59,7 @@ resource "azurerm_virtual_machine" "{{ vm }}" {
   network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm }}.id]
 {% endif %}
   primary_network_interface_id = azurerm_network_interface.vm_nic1_{{ vm }}.id
+  availability_set_id          = azurerm_availability_set.avset1.id
 
   # Delete data disk at vm deletion
   delete_os_disk_on_termination = true

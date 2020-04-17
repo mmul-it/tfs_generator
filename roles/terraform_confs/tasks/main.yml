@@ -52,6 +52,11 @@
     group: root
     mode: 0644
 
+- name: Deploy Availability Set
+  template:
+    src: availability_set.tf.j2
+    dest: /home/ansible/terraform/availability_set.tf
+
 - name: Deploy Apache template
   template:
     src: apache.tf.j2

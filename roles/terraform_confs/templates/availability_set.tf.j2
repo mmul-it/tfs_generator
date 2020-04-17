@@ -1,0 +1,9 @@
+resource "azurerm_availability_set" "avset1" {
+  depends_on                   = [azurerm_resource_group.rg_poc]
+  name                         = "avset1"
+  location                     = var.location
+  resource_group_name          = var.resource_group_name
+  platform_fault_domain_count  = 2
+  platform_update_domain_count = 2
+  managed                      = true
+}
