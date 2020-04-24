@@ -59,7 +59,7 @@ resource "azurerm_virtual_machine" "{{ vm }}" {
   network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm }}.id]
 {% endif %}
   primary_network_interface_id = azurerm_network_interface.vm_nic1_{{ vm }}.id
-  availability_set_id          = azurerm_availability_set.avset1.id
+  #availability_set_id          = azurerm_availability_set.avset1.id
 
   # Delete data disk at vm deletion
   delete_os_disk_on_termination = true

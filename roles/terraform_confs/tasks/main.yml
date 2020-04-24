@@ -4,6 +4,10 @@
   include_vars:
     file: roles/terraform_confs/vars/subnet_list.yml
 
+- name: Include a local network gateway list as a var file
+  include_vars:
+    file: inventory/mobyt/vars/localnetworkgw_list.yml
+
 - name: Deploy Variables template
   template:
     src: variables.tf.j2
@@ -52,10 +56,29 @@
     group: root
     mode: 0644
 
+- name: Deploy Virtual Network Gateway template
+  template:
+    src: virtualnetwork_gw.tf.j2
+    dest: /home/ansible/terraform/virtualnetwork_gw.tf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Deploy Local Network Gateway template
+  template:
+    src: localnetwork_gw.tf.j2
+    dest: /home/ansible/terraform/localnetwork_gw.tf
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Deploy Availability Set
   template:
     src: availability_set.tf.j2
     dest: /home/ansible/terraform/availability_set.tf
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Deploy Apache template
   template:

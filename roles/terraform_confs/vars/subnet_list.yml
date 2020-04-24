@@ -1,7 +1,5 @@
 ---
 
 subnets:
-  - name: server_subnet
-    prefix: 10.0.1.0/24
-  - name: client_subnet
-    prefix: 10.0.2.0/24
+  - name: subnet_server
+    prefix: 192.168.50.0/25
