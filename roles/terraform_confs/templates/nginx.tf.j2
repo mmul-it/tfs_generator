@@ -1,6 +1,9 @@
 # VM(s) that will be created:
 {% for vm in groups['nginx'] %}
-# {{ vm }} - {{ hostvars[vm].internal_ip }}, {{ hostvars[vm].vm_size }}, disk1: {{ hostvars[vm].disk1_size }}GB
+# {{ vm }} - {{ hostvars[vm].internal_ip }}, {{ hostvars[vm].vm_size }}
+{% for disk in hostvars[vm].disks %}
+# - {{ disk.name }} {{ disk.size }}GB
+{% endfor %}
 {% endfor %}
 
 # NIC creation blocks
@@ -96,23 +99,26 @@ resource "azurerm_virtual_machine" "{{ vm }}" {
   }
 }
 
-# {{ vm }} disk1_{{ vm }} managed disk
-resource "azurerm_managed_disk" "disk1_{{ vm }}" {
-  depends_on           = [azurerm_resource_group.{{ azure_resource_group_name }}]
-  name                 = "disk1_{{ vm }}"
+{% for disk in hostvars[vm].disks %}
+# {{ vm }} {{ disk.name }} managed disk
+resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm }}" {
+  depends_on           = [azurerm_virtual_machine.{{ vm }}]
+  name                 = "{{ disk.name }}_{{ vm }}"
   resource_group_name  = var.resource_group_name
   location             = var.location
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
-  disk_size_gb         = "{{ hostvars[vm].disk1_size }}"
+  disk_size_gb         = "{{ disk.size }}"
 }
 
-# {{ vm }} disk1_{{ vm }} attach disk
-resource "azurerm_virtual_machine_data_disk_attachment" "disk1_{{ vm }}" {
-  depends_on         = [azurerm_managed_disk.disk1_{{ vm }}]
-  managed_disk_id    = azurerm_managed_disk.disk1_{{ vm }}.id
+# {{ vm }} {{ disk.name }} attach disk
+resource "azurerm_virtual_machine_data_disk_attachment" "{{ disk.name }}_{{ vm }}" {
+  depends_on         = [azurerm_managed_disk.{{ disk.name }}_{{ vm }}]
+  managed_disk_id    = azurerm_managed_disk.{{ disk.name }}_{{ vm }}.id
   virtual_machine_id = azurerm_virtual_machine.{{ vm }}.id
-  lun                = "0"
+  lun                = "{{ disk.lun }}"
   caching            = "ReadWrite"
 }
+
+{% endfor %}
 {% endfor %}
