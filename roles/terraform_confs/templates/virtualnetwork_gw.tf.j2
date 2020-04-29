@@ -39,11 +39,12 @@ resource "azurerm_virtual_network_gateway" "{{ azure_vnet_gw_name }}" {
 
 # Data resource to map ip address (*.ip_address) to Local Network Gateway
 data "azurerm_public_ip" "{{ azure_vnet_gw_name }}_publicip" {
+  depends_on          = [azurerm_virtual_network_gateway.{{ azure_vnet_gw_name }}]
   name                = azurerm_public_ip.{{ azure_vnet_gw_name }}_publicip.name
   resource_group_name = var.resource_group_name
 }
 
 # Will print data resource values after deploy is completed
 output "public_ip_address" {
-  value = data.azurerm_public_ip.{{ azure_vnet_gw_name}}_publicip.ip_address
+  value = data.azurerm_public_ip.{{ azure_vnet_gw_name }}_publicip.ip_address
 }
