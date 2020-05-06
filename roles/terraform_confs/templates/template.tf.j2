@@ -1,5 +1,5 @@
 # VM(s) that will be created:
-{% for vm in groups[group] %}
+{% for vm in groups[group.key] %}
 # {{ vm }} - {{ hostvars[vm].internal_ip }}, {{ hostvars[vm].vm_size }}
 {% for disk in hostvars[vm].disks %}
 # - {{ disk.name }} {{ disk.size }}GB
@@ -7,7 +7,7 @@
 {% endfor %}
 
 # NIC creation blocks
-{% for vm in groups[group] %}
+{% for vm in groups[group.key] %}
 # Set primary_ip {{ vm }}
 resource "azurerm_network_interface" "vm_nic1_{{ vm }}" {
   name                  = "nic1_{{ vm }}"
@@ -47,7 +47,7 @@ resource "azurerm_network_interface" "vm_nic2_{{ vm }}" {
 {% endfor -%}
 
 # Virtual machine creation blocks
-{% for vm in groups[group] %}
+{% for vm in groups[group.key] %}
 
 # {{ vm }} resource block
 resource "azurerm_virtual_machine" "{{ vm }}" {
