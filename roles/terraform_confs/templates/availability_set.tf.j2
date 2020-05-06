@@ -1,5 +1,5 @@
 resource "azurerm_availability_set" "avset1" {
-  depends_on                   = [azurerm_resource_group.rg_poc]
+  depends_on                   = [azurerm_resource_group.{{ azure_resource_group_name }}]
   name                         = "avset1"
   location                     = var.location
   resource_group_name          = var.resource_group_name
