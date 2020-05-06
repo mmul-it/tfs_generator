@@ -11,7 +11,7 @@
 - name: Deploy Variables template
   template:
     src: variables.tf.j2
-    dest: /home/ansible/terraform/variables.tf
+    dest: "{{ terraform_output_dir }}/variables.tf"
     owner: root
     group: root
     mode: 0644
@@ -19,7 +19,7 @@
 - name: Deploy Provider template
   template:
     src: provider.tf.j2
-    dest: /home/ansible/terraform/provider.tf
+    dest: "{{ terraform_output_dir }}/provider.tf"
     owner: root
     group: root
     mode: 0644
@@ -27,7 +27,7 @@
 - name: Deploy Resource Group template
   template:
     src: resource_group.tf.j2
-    dest: /home/ansible/terraform/resource_group.tf
+    dest: "{{ terraform_output_dir }}/resource_group.tf"
     owner: root
     group: root
     mode: 0644
@@ -35,7 +35,7 @@
 - name: Deploy Storage Account template
   template:
     src: storage.tf.j2
-    dest: /home/ansible/terraform/storage.tf
+    dest: "{{ terraform_output_dir }}/storage.tf"
     owner: root
     group: root
     mode: 0644
@@ -43,7 +43,7 @@
 - name: Deploy Network template
   template:
     src: network.tf.j2
-    dest: /home/ansible/terraform/network.tf
+    dest: "{{ terraform_output_dir }}/network.tf"
     owner: root
     group: root
     mode: 0644
@@ -51,7 +51,7 @@
 - name: Deploy Network Security Rule template
   template:
     src: network_sec_group.tf.j2
-    dest: /home/ansible/terraform/network_sec_group.tf
+    dest: "{{ terraform_output_dir }}/network_sec_group.tf"
     owner: root
     group: root
     mode: 0644
@@ -59,7 +59,7 @@
 - name: Deploy Virtual Network Gateway template
   template:
     src: virtualnetwork_gw.tf.j2
-    dest: /home/ansible/terraform/virtualnetwork_gw.tf
+    dest: "{{ terraform_output_dir }}/virtualnetwork_gw.tf"
     owner: root
     group: root
     mode: 0644
@@ -67,7 +67,7 @@
 - name: Deploy Local Network Gateway template
   template:
     src: localnetwork_gw.tf.j2
-    dest: /home/ansible/terraform/localnetwork_gw.tf
+    dest: "{{ terraform_output_dir }}/localnetwork_gw.tf"
     owner: root
     group: root
     mode: 0644
@@ -75,7 +75,7 @@
 - name: Deploy Availability Set
   template:
     src: availability_set.tf.j2
-    dest: /home/ansible/terraform/availability_set.tf
+    dest: "{{ terraform_output_dir }}/availability_set.tf"
     owner: root
     group: root
     mode: 0644
@@ -83,7 +83,7 @@
 - name: Deploy Apache role from template
   template:
     src: template.tf.j2
-    dest: /home/ansible/terraform/apache.tf
+    dest: "{{ terraform_output_dir }}/apache.tf"
     owner: root
     group: root
     mode: 0644
@@ -93,7 +93,7 @@
 - name: Deploy HAProxy role from template
   template:
     src: template.tf.j2
-    dest: /home/ansible/terraform/haproxy.tf
+    dest: "{{ terraform_output_dir }}/haproxy.tf"
     owner: root
     group: root
     mode: 0644
@@ -103,7 +103,7 @@
 - name: Deploy Nginx role from template
   template:
     src: template.tf.j2
-    dest: /home/ansible/terraform/nginx.tf
+    dest: "{{ terraform_output_dir }}/nginx.tf"
     owner: root
     group: root
     mode: 0644
@@ -113,7 +113,7 @@
 - name: Deploy Application Server role from template
   template:
     src: template.tf.j2
-    dest: /home/ansible/terraform/appserver.tf
+    dest: "{{ terraform_output_dir }}/appserver.tf"
     owner: root
     group: root
     mode: 0644
@@ -123,7 +123,7 @@
 - name: Deploy Redis role from template
   template:
     src: template.tf.j2
-    dest: /home/ansible/terraform/redis.tf
+    dest: "{{ terraform_output_dir }}/redis.tf"
     owner: root
     group: root
     mode: 0644
@@ -133,7 +133,7 @@
 - name: Deploy Elastic role from template
   template:
     src: template.tf.j2
-    dest: /home/ansible/terraform/elastic.tf
+    dest: "{{ terraform_output_dir }}/elastic.tf"
     owner: root
     group: root
     mode: 0644
@@ -143,7 +143,7 @@
 - name: Deploy MySQL" role from template
   template:
     src: template.tf.j2
-    dest: /home/ansible/terraform/mysql.tf
+    dest: "{{ terraform_output_dir }}/mysql.tf"
     owner: root
     group: root
     mode: 0644
@@ -153,7 +153,7 @@
 - name: Deploy RabbitMQ role from template
   template:
     src: template.tf.j2
-    dest: /home/ansible/terraform/rabbitmq.tf
+    dest: "{{ terraform_output_dir }}/rabbitmq.tf"
     owner: root
     group: root
     mode: 0644
@@ -163,7 +163,7 @@
 - name: Deploy Zabbix role from template
   template:
     src: template.tf.j2
-    dest: /home/ansible/terraform/zabbixproxy.tf
+    dest: "{{ terraform_output_dir }}/zabbixproxy.tf"
     owner: root
     group: root
     mode: 0644
@@ -173,7 +173,7 @@
 - name: Deploy Kannel role from template
   template:
     src: template.tf.j2
-    dest: /home/ansible/terraform/kannel.tf
+    dest: "{{ terraform_output_dir }}/kannel.tf"
     owner: root
     group: root
     mode: 0644
