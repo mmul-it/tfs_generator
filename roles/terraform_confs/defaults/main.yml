@@ -2,4 +2,4 @@
 
 subnets:
   - name: subnet_server
-    prefix: 192.168.50.0/25
+    prefix: 192.168.0.0/16
