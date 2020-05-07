@@ -45,6 +45,6 @@ data "azurerm_public_ip" "{{ azure_vnet_gw_name }}_publicip" {
 }
 
 # Will print data resource values after deploy is completed
-output "public_ip_address" {
+output "{{ azure_vnet_gw_name }}_public_ip_address" {
   value = data.azurerm_public_ip.{{ azure_vnet_gw_name }}_publicip.ip_address
 }

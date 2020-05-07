@@ -1,18 +1,19 @@
 ---
-
+# This variables will be used to deploy your infrastructure
 azure_resource_group_name: "azure-resource-group"
 azure_location: ''
 azure_subscription_id: ''
 azure_client_id: ''
 azure_client_secret: ''
 azure_tenant_id: ''
-azure_network_sec_group_name : 'network_sec_group'
+azure_network_sec_group_name: 'network_sec_group'
 azure_vnet_name: 'vnet'
 azure_vnet_addr_space: '192.168.0.0/24'
 azure_gw_subnet_name: 'gateway_subnet'
-azure_gw_subnet_addr_prefix: '192.168.10.248/29'
-azure_storage_account_name: ''
+azure_gw_subnet_addr_prefix: '192.168.0.248/29'
+azure_storage_account_name: 'storageaccount'
 azure_vnet_gw_name: 'vnet_gw'
+azure_lnet_gw: ''
 azure_lnet_gw_name: 'lnet_gw'
 azure_resources:
   - variables
@@ -21,10 +22,11 @@ azure_resources:
   - storage
   - network
   - network_sec_group
+  - availability_set
+azure_vpn_resources:
   - virtualnetwork_gw
   - localnetwork_gw
-  - availability_set
 
 subnets:
   - name: subnet_server
-    prefix: 192.168.0.0/16
+    prefix: 192.168.0.0/25
