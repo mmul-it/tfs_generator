@@ -6,18 +6,17 @@
 resource "azurerm_local_network_gateway" "{{ localnetworkgw.name }}" {
   depends_on          = [azurerm_virtual_network_gateway.{{ azure_vnet_gw_name }}]
   name                = "{{ localnetworkgw.name }}"
-  resource_group_name = var.resource_group_name
-  location            = var.location
+  resource_group_name = azurerm_resource_group.{{ azure_resource_group_name }}.name
+  location            = azurerm_resource_group.{{ azure_resource_group_name }}.location
   gateway_address     = "{{ localnetworkgw.remote_peer }}"
   address_space       = ["{{ localnetworkgw.prefix }}"]
 }
 
 # {{ localnetworkgw.name }} Connection
 resource "azurerm_virtual_network_gateway_connection" "{{ localnetworkgw.name }}_connection" {
-  depends_on                 = [azurerm_virtual_network_gateway.{{ azure_vnet_gw_name }}]
   name                       = "{{ localnetworkgw.name }}_connection"
-  resource_group_name        = var.resource_group_name
-  location                   = var.location
+  resource_group_name        = azurerm_resource_group.{{ azure_resource_group_name }}.name
+  location                   = azurerm_resource_group.{{ azure_resource_group_name }}.location
   type                       = "IPSec"
   virtual_network_gateway_id = azurerm_virtual_network_gateway.{{ azure_vnet_gw_name }}.id
   local_network_gateway_id   = azurerm_local_network_gateway.{{ localnetworkgw.name }}.id

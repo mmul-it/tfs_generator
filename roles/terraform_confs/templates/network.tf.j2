@@ -7,19 +7,17 @@
 resource "azurerm_virtual_network" "{{ azure_vnet_name }}" {
   name                = "{{ azure_vnet_name }}"
   address_space       = ["{{ azure_vnet_addr_space }}"]
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  depends_on          = [azurerm_resource_group.{{ azure_resource_group_name }}]
+  location            = azurerm_resource_group.{{ azure_resource_group_name }}.location
+  resource_group_name = azurerm_resource_group.{{ azure_resource_group_name }}.name
 }
 
 # Subnet creation block(s)
 {% for subnet in subnets %}
 resource "azurerm_subnet" "{{ subnet.name }}" {
   name                 = "{{ subnet.name }}"
-  resource_group_name  = var.resource_group_name
+  resource_group_name  = azurerm_resource_group.{{ azure_resource_group_name }}.name
   virtual_network_name = azurerm_virtual_network.{{ azure_vnet_name }}.name
   address_prefix       = "{{ subnet.prefix }}"
-  depends_on           = [azurerm_virtual_network.{{ azure_vnet_name }}]
 }
 
 {% endfor -%}

@@ -3,7 +3,6 @@
 # maintain terraform tfstate file synchronized between multiple users
 azure_tfstate_resource_group_name: "terraform-tfstate"
 azure_tfstate_resources:
-  - variables
   - provider
   - resource_group
   - storage
@@ -26,7 +25,6 @@ azure_vnet_gw_name: 'vnet_gw'
 azure_lnet_gw: ''
 azure_lnet_gw_name: 'lnet_gw'
 azure_resources:
-  - variables
   - provider
   - resource_group
   - storage
