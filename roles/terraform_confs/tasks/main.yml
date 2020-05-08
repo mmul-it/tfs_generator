@@ -1,5 +1,21 @@
 ---
 
+- name: Create output directory {{ terraform_output_dir }}
+  file:
+    path: "{{ terraform_output_dir }}"
+    state: directory
+
+- name: Deploy templates to initialize Azure for keeping Terraform tfstore 
+  include_tasks:
+    file: "azure-terraform-init.yml"
+  vars:
+    azure_resource_group_name: "{{ azure_tfstate_resource_group_name }}"
+    azure_storage_account_name: "{{ terraform_tfstate_on_azure_storage_container }}"
+    azure_storage_container_name: "{{ terraform_tfstate_on_azure_storage_container }}"
+    azure_resources: "{{ azure_tfstate_resources }}"
+  when:
+    - terraform_tfstate_on_azure_storage_container is defined
+
 - name: Deploy general resources templates
   template:
     src: "{{ item }}.tf.j2"

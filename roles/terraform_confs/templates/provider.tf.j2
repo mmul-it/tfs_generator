@@ -6,3 +6,15 @@ provider "azurerm" {
   client_secret   = "{{ azure_client_secret }}"
   tenant_id       = "{{ azure_tenant_id }}"
 }
+
+{% if terraform_tfstate_on_azure_storage_container is defined and
+      skip_azure_backend is not defined %}
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "{{ azure_tfstate_resource_group_name }}"
+    storage_account_name = "{{ terraform_tfstate_on_azure_storage_container }}"
+    container_name       = "{{ terraform_tfstate_on_azure_storage_container }}"
+    key                  = "terraform.tfstate"
+  }
+}
+{% endif %}

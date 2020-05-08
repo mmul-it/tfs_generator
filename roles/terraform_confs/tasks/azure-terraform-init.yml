@@ -1,0 +1,15 @@
+---
+
+- name: Create output directory
+  file:
+    path: "{{ terraform_output_dir }}/azure-terraform-init"
+    state: directory
+
+- name: Deploy resources templates
+  template:
+    src: "{{ item }}.tf.j2"
+    dest: "{{ terraform_output_dir }}/azure-terraform-init/{{ item }}.tf"
+  with_items:
+    - "{{ azure_resources }}"
+  vars:
+    skip_azure_backend: true
