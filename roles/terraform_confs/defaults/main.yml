@@ -24,6 +24,8 @@ azure_storage_account_name: 'mystorageaccount'
 azure_vnet_gw_name: 'vnet_gw'
 azure_lnet_gw: ''
 azure_lnet_gw_name: 'lnet_gw'
+azure_vm_admin_username: 'admin'
+azure_vm_admin_password: '4dm1n!'
 azure_resources:
   - provider
   - resource_group
