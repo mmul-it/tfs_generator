@@ -5,6 +5,12 @@
     path: "{{ terraform_output_dir }}"
     state: directory
 
+- name: Install terraform locally
+  include_tasks:
+    file: "terraform-install.yml"
+  when:
+    - terraform_install_local == true
+
 - name: Deploy templates to initialize Azure for keeping Terraform tfstore 
   include_tasks:
     file: "azure-terraform-init.yml"

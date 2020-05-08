@@ -1,5 +1,15 @@
 ---
-# This variables will be used to initialize the Azure Storage Blob to
+
+# These variables will be used to determine where to deploy terraform resource
+# files
+terraform_output_dir: 'terraform'
+
+# These variables will be used to install terraform
+terraform_install_local: true
+terraform_install_version: '0.12.24'
+terraform_install_platform: 'linux_amd64'
+
+# These variables will be used to initialize the Azure Storage Blob to
 # maintain terraform tfstate file synchronized between multiple users
 azure_tfstate_resource_group_name: "terraform-tfstate"
 azure_tfstate_resources:
@@ -8,7 +18,7 @@ azure_tfstate_resources:
   - storage
   - storage_container
 
-# This variables will be used to deploy your infrastructure
+# These variables will be used to deploy your infrastructure
 azure_resource_group_name: "azure-resource-group"
 azure_location: ''
 azure_subscription_id: ''
