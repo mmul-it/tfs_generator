@@ -1,50 +1,16 @@
 ---
 
-- name: Create output directory {{ terraform_output_dir }}
+- name: Install terraform locally
+  include_tasks: install.yml
+  when:
+    - terraform_binary_install == true
+
+- name: "Create local configurations directory {{ terraform_config_dir }}"
   file:
-    path: "{{ terraform_output_dir }}"
+    path: "{{ terraform_config_dir }}"
     state: directory
 
-- name: Install terraform locally
-  include_tasks:
-    file: "terraform-install.yml"
+- name: Deploy Azure environment
+  include_tasks: azure.yml
   when:
-    - terraform_install_local == true
-
-- name: Deploy templates to initialize Azure for keeping Terraform tfstore 
-  include_tasks:
-    file: "azure-terraform-init.yml"
-  vars:
-    azure_resource_group_name: "{{ azure_tfstate_resource_group_name }}"
-    azure_storage_account_name: "{{ terraform_tfstate_on_azure_storage_container }}"
-    azure_storage_container_name: "{{ terraform_tfstate_on_azure_storage_container }}"
-    azure_resources: "{{ azure_tfstate_resources }}"
-  when:
-    - terraform_tfstate_on_azure_storage_container is defined
-
-- name: Deploy general resources templates
-  template:
-    src: "{{ item }}.tf.j2"
-    dest: "{{ terraform_output_dir }}/{{ item }}.tf"
-  with_items:
-    - "{{ azure_resources }}"
-
-- name: Deploy VPN resources templates
-  template:
-    src: "{{ item }}.tf.j2"
-    dest: "{{ terraform_output_dir }}/{{ item }}.tf"
-  with_items:
-    - "{{ azure_vpn_resources }}"
-  when:
-    - localnetworkgws is defined
-
-- name: Deploy machine specific templates
-  template:
-    src: template.tf.j2
-    dest: "{{ terraform_output_dir }}/{{ group.key }}.tf"
-  with_dict:
-    - "{{ groups }}"
-  loop_control:
-    loop_var: group
-  when:
-    - group.key not in ('all', 'ungrouped')
+    - terraform_cloud_provider == 'azure'

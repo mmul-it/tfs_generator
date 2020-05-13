@@ -1,7 +1,7 @@
 # Local Network Gateway used to map remote host peer to allow Site-to-Site VPN
 # and Connections for VnetGW <-> Remote Peer
 
-{% for localnetworkgw in localnetworkgws %}
+{% for localnetworkgw in azure_localnetworkgws %}
 # {{ localnetworkgw.name }} Local Network Gateway (Remote Peer)
 resource "azurerm_local_network_gateway" "{{ localnetworkgw.name }}" {
   depends_on          = [azurerm_virtual_network_gateway.{{ azure_vnet_gw_name }}]

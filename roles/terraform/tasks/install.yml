@@ -1,0 +1,26 @@
+---
+
+- name: Check if terraform binary exists
+  stat:
+    path: "{{ terraform_config_dir }}/bin/terraform"
+  register: terraform_binary
+
+- block:
+    - name: Install unzip
+      package:
+        name: unzip
+        state: present
+      become: true
+
+    - name: "Create directory for terraform binary {{ terraform_config_dir }}/bin"
+      file:
+        path: "{{ terraform_config_dir }}/bin"
+        state: directory
+
+    - name: Download and extract terraform binary
+      unarchive:
+        src: "https://releases.hashicorp.com/terraform/{{ terraform_binary_version }}/terraform_{{ terraform_binary_version }}_{{ terraform_binary_platform }}.zip"
+        dest: "{{ terraform_config_dir }}/bin"
+        remote_src: yes
+  when:
+    - not terraform_binary.stat.executable

@@ -1,0 +1,53 @@
+---
+
+- block:
+    - name: "Create azure-init output directory"
+      file:
+        path: "{{ terraform_config_dir }}/azure-init"
+        state: directory
+    
+    - name: Deploy resources templates
+      template:
+        src: "azure/{{ item }}.tf.j2"
+        dest: "{{ terraform_config_dir }}/azure-init/{{ item }}.tf"
+      with_items:
+        - "{{ azure_tfstate_resources }}"
+      vars:
+        skip_azure_backend: true
+        azure_resource_group_name: "{{ azure_tfstate_resource_group_name }}"
+        azure_storage_account_name: "{{ terraform_tfstate_on_azure_storage_container }}"
+        azure_storage_container_name: "{{ terraform_tfstate_on_azure_storage_container }}"
+  when:
+    - terraform_tfstate_on_azure_storage_container is defined
+
+- name: "Create azure output directory"
+  file:
+    path: "{{ terraform_config_dir }}/azure"
+    state: directory
+
+- name: Deploy Azure general resources templates
+  template:
+    src: "azure/{{ item }}.tf.j2"
+    dest: "{{ terraform_config_dir }}/azure/{{ item }}.tf"
+  with_items:
+    - "{{ azure_resources }}"
+
+- name: Deploy VPN resources templates
+  template:
+    src: "azure/{{ item }}.tf.j2"
+    dest: "{{ terraform_config_dir }}/azure/{{ item }}.tf"
+  with_items:
+    - "{{ azure_vpn_resources }}"
+  when:
+    - localnetworkgws is defined
+
+- name: Deploy Azure machine specific templates
+  template:
+    src: azure/template.tf.j2
+    dest: "{{ terraform_config_dir }}/azure/{{ group.key }}.tf"
+  with_dict:
+    - "{{ groups }}"
+  loop_control:
+    loop_var: group
+  when:
+    - group.key not in ('all', 'ungrouped')
