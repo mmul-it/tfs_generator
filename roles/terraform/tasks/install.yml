@@ -23,4 +23,4 @@
         dest: "{{ terraform_config_dir }}/bin"
         remote_src: yes
   when:
-    - not terraform_binary.stat.executable
+    - not terraform_binary.stat.exists or not terraform_binary.stat.executable
