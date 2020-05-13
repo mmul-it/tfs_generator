@@ -39,7 +39,7 @@
   with_items:
     - "{{ azure_vpn_resources }}"
   when:
-    - localnetworkgws is defined
+    - azure_localnetworkgws is defined
 
 - name: Deploy Azure machine specific templates
   template:
