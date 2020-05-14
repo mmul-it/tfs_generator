@@ -83,11 +83,19 @@ resource "azurerm_virtual_machine" "{{ vm }}" {
   os_profile {
     computer_name  = "{{ vm }}"
     admin_username = "{{ azure_vm_admin_username }}"
+{% if azure_vm_disable_password_authentication|lower == 'false' %}
     admin_password = "{{ azure_vm_admin_password }}"
+{% endif %}
   }
 
   os_profile_linux_config {
-    disable_password_authentication = false
+    disable_password_authentication = {{ azure_vm_disable_password_authentication|lower }}
+{% if azure_vm_admin_ssh_public_key != '' %}
+    ssh_keys {
+      path     = "/home/{{ azure_vm_admin_username }}/.ssh/authorized_keys"
+      key_data = "{{ azure_vm_admin_ssh_public_key }}"
+    }
+{% endif %}
   }
 
   boot_diagnostics {
