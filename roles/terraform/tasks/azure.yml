@@ -1,7 +1,13 @@
 ---
 
 - block:
-    - name: "Create azure-init output directory"
+    - name: Purge azure-init output directory
+      file:
+        path: "{{ terraform_config_dir }}/azure-init"
+        state: absent
+      when:
+        - terraform_purge == true
+    - name: Create azure-init output directory
       file:
         path: "{{ terraform_config_dir }}/azure-init"
         state: directory
@@ -20,7 +26,14 @@
   when:
     - terraform_tfstate_on_azure_storage_container is defined
 
-- name: "Create azure output directory"
+- name: Purge azure output directory
+  file:
+    path: "{{ terraform_config_dir }}/azure"
+    state: absent
+  when:
+    - terraform_purge == true
+
+- name: Create azure output directory
   file:
     path: "{{ terraform_config_dir }}/azure"
     state: directory

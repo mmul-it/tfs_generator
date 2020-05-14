@@ -8,6 +8,9 @@ terraform_binary_platform: 'linux_amd64'
 # Where to deploy terraform resource files
 terraform_config_dir: 'terraform'
 
+# Delete existing resources before deploying new ones
+terraform_purge: false
+
 # Which environment we're going to deploy
 terraform_cloud_provider: 'azure'
 
