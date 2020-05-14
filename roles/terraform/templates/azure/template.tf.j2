@@ -19,6 +19,14 @@ resource "azurerm_network_interface" "vm_nic1_{{ vm }}" {
     private_ip_address_allocation = "Static"
     private_ip_address            = "{{ hostvars[vm].internal_ip }}"
   }
+{% if hostvars[vm].azure_tags is defined %}
+
+  tags = {
+{% for key,value in hostvars[vm].azure_tags.items() %}
+    {{ key }} = "{{ value }}"
+{% endfor %}
+  }
+{% endif %}
 }
 
 # Set Security Group to NIC
@@ -40,6 +48,14 @@ resource "azurerm_network_interface" "vm_nic2_{{ vm }}" {
     private_ip_address_allocation = "Static"
     private_ip_address            = "{{ hostvars[vm].secondary_ip }}"
   }
+{% if hostvars[vm].azure_tags is defined %}
+
+  tags = {
+{% for key,value in hostvars[vm].azure_tags.items() %}
+    {{ key }} = "{{ value }}"
+{% endfor %}
+  }
+{% endif %}
 }
 {% endif %}
 
@@ -102,6 +118,14 @@ resource "azurerm_virtual_machine" "{{ vm }}" {
     enabled     = true
     storage_uri = azurerm_storage_account.{{ azure_storage_account_name }}.primary_blob_endpoint
   }
+{% if hostvars[vm].azure_tags is defined %}
+
+  tags = {
+{% for key,value in hostvars[vm].azure_tags.items() %}
+    {{ key }} = "{{ value }}"
+{% endfor %}
+  }
+{% endif %}
 }
 
 {% for disk in hostvars[vm].disks %}
@@ -114,6 +138,14 @@ resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm }}" {
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
   disk_size_gb         = "{{ disk.size }}"
+{% if hostvars[vm].azure_tags is defined %}
+
+  tags = {
+{% for key,value in hostvars[vm].azure_tags.items() %}
+    {{ key }} = "{{ value }}"
+{% endfor %}
+  }
+{% endif %}
 }
 
 # {{ vm }} {{ disk.name }} attach disk
