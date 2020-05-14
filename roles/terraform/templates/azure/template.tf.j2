@@ -1,8 +1,10 @@
 {% for vm in groups[group.key] %}
 # {{ vm }} - {{ hostvars[vm].internal_ip }}, {{ hostvars[vm].vm_size }}
+{% if hostvars[vm].disks is defined %}
 {% for disk in hostvars[vm].disks %}
 # - {{ disk.name }} {{ disk.size }}GB
 {% endfor %}
+{% endif %}
 {% endfor %}
 
 # NIC creation blocks
@@ -128,6 +130,7 @@ resource "azurerm_virtual_machine" "{{ vm }}" {
 {% endif %}
 }
 
+{% if hostvars[vm].disks is defined %}
 {% for disk in hostvars[vm].disks %}
 # {{ vm }} {{ disk.name }} managed disk
 resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm }}" {
@@ -157,4 +160,5 @@ resource "azurerm_virtual_machine_data_disk_attachment" "{{ disk.name }}_{{ vm }
 }
 
 {% endfor %}
+{% endif %}
 {% endfor %}
