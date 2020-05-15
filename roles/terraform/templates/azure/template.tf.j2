@@ -110,10 +110,10 @@ resource "azurerm_virtual_machine" "{{ vm_basename }}" {
 
   os_profile_linux_config {
     disable_password_authentication = {{ azure_vm_disable_password_authentication|lower }}
-{% if azure_vm_admin_ssh_public_key != '' %}
+{% if azure_vm_admin_ssh_public_key_file != '' %}
     ssh_keys {
       path     = "/home/{{ azure_vm_admin_username }}/.ssh/authorized_keys"
-      key_data = "{{ azure_vm_admin_ssh_public_key }}"
+      key_data = file("{{ azure_vm_admin_ssh_public_key_file }}")
     }
 {% endif %}
   }

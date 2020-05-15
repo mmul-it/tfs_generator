@@ -53,5 +53,5 @@ azure_lnet_gw: ''
 azure_lnet_gw_name: 'lnet_gw'
 azure_vm_admin_username: 'adminuser'
 azure_vm_admin_password: '4dm1n!'
-azure_vm_disable_password_authentication: false
-azure_vm_admin_ssh_public_key: ''
+azure_vm_disable_password_authentication: true
+azure_vm_admin_ssh_public_key_file: "{{ terraform_config_dir }}/azure-keys/azure_id_rsa.pub"
