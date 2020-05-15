@@ -6,12 +6,13 @@
         path: "{{ terraform_config_dir }}/azure-init"
         state: absent
       when:
-        - terraform_purge == true
+        - terraform_purge | bool
+
     - name: Create azure-init output directory
       file:
         path: "{{ terraform_config_dir }}/azure-init"
         state: directory
-    
+
     - name: Deploy resources templates
       template:
         src: "azure/{{ item }}.tf.j2"
@@ -31,7 +32,7 @@
     path: "{{ terraform_config_dir }}/azure"
     state: absent
   when:
-    - terraform_purge == true
+    - terraform_purge | bool
 
 - name: Create azure output directory
   file:

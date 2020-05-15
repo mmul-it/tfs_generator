@@ -3,7 +3,7 @@
 - name: Install terraform locally
   include_tasks: install.yml
   when:
-    - terraform_binary_install == true
+    - terraform_binary_install | bool
 
 - name: "Create local configurations directory {{ terraform_config_dir }}"
   file:

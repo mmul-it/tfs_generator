@@ -16,7 +16,6 @@ resource "azurerm_public_ip" "{{ azure_vnet_gw_name }}_publicip" {
   allocation_method   = "Dynamic"
 }
 
-
 # Virtual Network Gateway for Site-to-Site VPN
 resource "azurerm_virtual_network_gateway" "{{ azure_vnet_gw_name }}" {
   name                = "{{ azure_vnet_gw_name }}"
