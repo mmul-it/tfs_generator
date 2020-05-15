@@ -30,7 +30,7 @@ resource "azurerm_virtual_network_gateway" "{{ azure_vnet_gw_name }}" {
 
   ip_configuration {
     public_ip_address_id = azurerm_public_ip.{{ azure_vnet_gw_name }}_publicip.id
-    subnet_id            = azurerm_subnet.gateway_subnet.id
+    subnet_id            = azurerm_subnet.{{ azure_gw_subnet_name }}.id
   }
 }
 
