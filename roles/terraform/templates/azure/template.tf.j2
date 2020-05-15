@@ -9,14 +9,15 @@
 
 # NIC creation blocks
 {% for vm in groups[group.key] %}
+{% set vm_basename = vm.split('.')[0] %}
 # Set primary_ip {{ vm }}
-resource "azurerm_network_interface" "vm_nic1_{{ vm }}" {
-  name                  = "nic1_{{ vm }}"
+resource "azurerm_network_interface" "vm_nic1_{{ vm_basename }}" {
+  name                  = "nic1_{{ vm_basename }}"
   resource_group_name   = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location              = azurerm_resource_group.{{ azure_resource_group_name }}.location
 
   ip_configuration {
-    name                          = "ip1_{{ vm }}"
+    name                          = "ip1_{{ vm_basename }}"
     subnet_id                     = azurerm_subnet.{{ hostvars[vm].subnet }}.id
     private_ip_address_allocation = "Static"
     private_ip_address            = "{{ hostvars[vm].internal_ip }}"
@@ -32,20 +33,20 @@ resource "azurerm_network_interface" "vm_nic1_{{ vm }}" {
 }
 
 # Set Security Group to NIC
-resource "azurerm_network_interface_security_group_association" "{{ vm }}_nic1_to_{{ azure_network_sec_group_name }}" {
-  network_interface_id      = azurerm_network_interface.vm_nic1_{{ vm }}.id
+resource "azurerm_network_interface_security_group_association" "{{ vm_basename }}_nic1_to_{{ azure_network_sec_group_name }}" {
+  network_interface_id      = azurerm_network_interface.vm_nic1_{{ vm_basename }}.id
   network_security_group_id = azurerm_network_security_group.{{ azure_network_sec_group_name }}.id
 }
 
 {% if hostvars[vm].secondary_ip is defined %}
 # Set secondary_ip {{ vm }}
-resource "azurerm_network_interface" "vm_nic2_{{ vm }}" {
-  name                = "nic2_{{ vm }}"
+resource "azurerm_network_interface" "vm_nic2_{{ vm_basename }}" {
+  name                = "nic2_{{ vm_basename }}"
   resource_group_name = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location            = azurerm_resource_group.{{ azure_resource_group_name }}.location
 
   ip_configuration {
-    name                          = "ip2_{{ vm }}"
+    name                          = "ip2_{{ vm_basename }}"
     subnet_id                     = azurerm_subnet.{{ hostvars[vm].alternative_subnet }}.id
     private_ip_address_allocation = "Static"
     private_ip_address            = "{{ hostvars[vm].secondary_ip }}"
@@ -65,19 +66,20 @@ resource "azurerm_network_interface" "vm_nic2_{{ vm }}" {
 
 # Virtual machine creation blocks
 {% for vm in groups[group.key] %}
+{% set vm_basename = vm.split('.')[0] %}
 
 # {{ vm }} resource block
-resource "azurerm_virtual_machine" "{{ vm }}" {
-  name                         = "{{ vm }}"
+resource "azurerm_virtual_machine" "{{ vm_basename }}" {
+  name                         = "{{ vm_basename }}"
   vm_size                      = "{{ hostvars[vm].vm_size }}"
   resource_group_name          = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location                     = azurerm_resource_group.{{ azure_resource_group_name }}.location
 {% if hostvars[vm].secondary_ip is defined %}
-  network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm }}.id, azurerm_network_interface.vm_nic2_{{ vm }}.id]
+  network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm_basename }}.id, azurerm_network_interface.vm_nic2_{{ vm_basename }}.id]
 {% else %}
-  network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm }}.id]
+  network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm_basename }}.id]
 {% endif %}
-  primary_network_interface_id = azurerm_network_interface.vm_nic1_{{ vm }}.id
+  primary_network_interface_id = azurerm_network_interface.vm_nic1_{{ vm_basename }}.id
 
   # Delete data disk at vm deletion
   delete_os_disk_on_termination = true
@@ -91,7 +93,7 @@ resource "azurerm_virtual_machine" "{{ vm }}" {
   }
 
   storage_os_disk {
-    name              = "osdisk_{{ vm }}"
+    name              = "osdisk_{{ vm_basename }}"
     disk_size_gb      = "{{ hostvars[vm].osdisk_size }}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
@@ -133,9 +135,9 @@ resource "azurerm_virtual_machine" "{{ vm }}" {
 {% if hostvars[vm].disks is defined %}
 {% for disk in hostvars[vm].disks %}
 # {{ vm }} {{ disk.name }} managed disk
-resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm }}" {
-  depends_on           = [azurerm_virtual_machine.{{ vm }}]
-  name                 = "{{ disk.name }}_{{ vm }}"
+resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm_basename }}" {
+  depends_on           = [azurerm_virtual_machine.{{ vm_basename }}]
+  name                 = "{{ disk.name }}_{{ vm_basename }}"
   resource_group_name  = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location             = azurerm_resource_group.{{ azure_resource_group_name }}.location
   storage_account_type = "Standard_LRS"
@@ -152,9 +154,9 @@ resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm }}" {
 }
 
 # {{ vm }} {{ disk.name }} attach disk
-resource "azurerm_virtual_machine_data_disk_attachment" "{{ disk.name }}_{{ vm }}" {
-  managed_disk_id    = azurerm_managed_disk.{{ disk.name }}_{{ vm }}.id
-  virtual_machine_id = azurerm_virtual_machine.{{ vm }}.id
+resource "azurerm_virtual_machine_data_disk_attachment" "{{ disk.name }}_{{ vm_basename }}" {
+  managed_disk_id    = azurerm_managed_disk.{{ disk.name }}_{{ vm_basename }}.id
+  virtual_machine_id = azurerm_virtual_machine.{{ vm_basename }}.id
   lun                = "{{ disk.lun }}"
   caching            = "ReadWrite"
 }
