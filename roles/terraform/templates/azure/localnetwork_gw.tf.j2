@@ -24,6 +24,14 @@ resource "azurerm_virtual_network_gateway_connection" "{{ localnetworkgw.name }}
 {% if localnetworkgw.protocol is defined %}
   connection_protocol        = "{{ localnetworkgw.protocol }}"
 {% endif %}
+{% if localnetworkgw.policy is defined %}
+
+  ipsec_policy {
+{% for key,value in localnetworkgw.policy.items() %}
+    {{ key }} = "{{ value }}"
+{% endfor %}
+  }
+{% endif %}
 }
 
 {% endfor -%}
