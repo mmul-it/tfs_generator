@@ -21,6 +21,9 @@ resource "azurerm_virtual_network_gateway_connection" "{{ localnetworkgw.name }}
   virtual_network_gateway_id = azurerm_virtual_network_gateway.{{ azure_vnet_gw_name }}.id
   local_network_gateway_id   = azurerm_local_network_gateway.{{ localnetworkgw.name }}.id
   shared_key                 = "{{ localnetworkgw.shared_key }}"
+{% if localnetworkgw.protocol is defined %}
+  connection_protocol        = "{{ localnetworkgw.protocol }}"
+{% endif %}
 }
 
 {% endfor -%}
