@@ -86,10 +86,10 @@ resource "azurerm_virtual_machine" "{{ vm_basename }}" {
   delete_data_disks_on_termination = true
 
   storage_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
+    publisher = "{{ azure_vm_image.publisher }}"
+    offer     = "{{ azure_vm_image.offer }}"
+    sku       = "{{ azure_vm_image.sku }}"
+    version   = "{{ azure_vm_image.version }}"
   }
 
   storage_os_disk {

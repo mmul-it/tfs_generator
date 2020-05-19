@@ -51,7 +51,17 @@ azure_storage_account_name: 'mystorageaccount'
 azure_vnet_gw_name: 'vnet_gw'
 azure_lnet_gw: ''
 azure_lnet_gw_name: 'lnet_gw'
+
+# Azure VM default variables
 azure_vm_admin_username: 'adminuser'
 azure_vm_admin_password: '4dm1n!'
 azure_vm_disable_password_authentication: true
 azure_vm_admin_ssh_public_key_file: "{{ terraform_config_dir }}/azure-keys/azure_id_rsa.pub"
+# Azure VM image to deploy. By default CentOS 7.7 are used, customize it in
+# the inventory group or host variables. The list of images is available via
+# 'az vm image list' command.
+azure_vm_image:
+  publisher: 'OpenLogic'
+  offer: 'CentOS'
+  sku: '7_7-gen2'
+  version: '7.7.2020042901'
