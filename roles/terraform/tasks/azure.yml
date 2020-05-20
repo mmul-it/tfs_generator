@@ -1,5 +1,26 @@
 ---
 
+- name: Create Azure private output directory
+  file:
+    path: "{{ terraform_config_dir }}/azure-private"
+    state: directory
+    mode: 0700
+
+- name: Deploy Azure private variables source templates
+  template:
+    src: "azure/variables.source.j2"
+    dest: "{{ terraform_config_dir }}/azure-private/variables.source"
+    mode: 0600
+
+- name: Generate ssh RSA public/private key
+  command:
+    cmd: ssh-keygen -t rsa -N '' -f azure_id_rsa
+    chdir: "{{ terraform_config_dir }}/azure-private"
+    creates: azure_id_rsa.pub
+  when:
+    - not azure_vm_admin_ssh_public_key_file is defined
+    - azure_vm_disable_password_authentication | bool
+
 - block:
     - name: Purge azure-init output directory
       file:
@@ -54,21 +75,6 @@
     - "{{ azure_vpn_resources }}"
   when:
     - azure_localnetworkgws is defined
-
-- block:
-    - name: Create Azure ssh key directory
-      file:
-        path: "{{ terraform_config_dir }}/azure-keys"
-        state: directory
-
-    - name: Generate ssh RSA public/private key
-      command:
-        cmd: ssh-keygen -t rsa -N '' -f azure_id_rsa
-        chdir: "{{ terraform_config_dir }}/azure-keys"
-        creates: azure_id_rsa.pub
-  when:
-    - azure_vm_admin_ssh_public_key_file == terraform_config_dir + '/azure-keys/azure_id_rsa.pub'
-    - not azure_vm_disable_password_authentication
 
 - name: Deploy Azure machine specific templates
   template:

@@ -56,7 +56,6 @@ azure_lnet_gw_name: 'lnet_gw'
 azure_vm_admin_username: 'adminuser'
 azure_vm_admin_password: '4dm1n!'
 azure_vm_disable_password_authentication: true
-azure_vm_admin_ssh_public_key_file: "{{ terraform_config_dir }}/azure-keys/azure_id_rsa.pub"
 # Azure VM image to deploy. By default CentOS 7.7 are used, customize it in
 # the inventory group or host variables. The list of images is available via
 # 'az vm image list' command.
