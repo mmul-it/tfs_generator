@@ -25,6 +25,7 @@ resource "azurerm_virtual_network_gateway_connection" "{{ localnetworkgw.name }}
   connection_protocol        = "{{ localnetworkgw.protocol }}"
 {% endif %}
 {% if localnetworkgw.policy is defined %}
+  use_policy_based_traffic_selectors = true
 
   ipsec_policy {
 {% for key,value in localnetworkgw.policy.items() %}
