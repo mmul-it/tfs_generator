@@ -76,6 +76,13 @@
   when:
     - azure_localnetworkgws is defined
 
+- name: Deploy Azure key vault template
+  template:
+    src: "azure/key_vault.tf.j2"
+    dest: "{{ terraform_config_dir }}/azure/key_vault.tf"
+  when:
+    - azure_key_vault_enable | bool 
+
 - name: Deploy Azure machine specific templates
   template:
     src: azure/template.tf.j2

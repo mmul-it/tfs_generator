@@ -52,6 +52,11 @@ azure_vnet_gw_name: 'vnet_gw'
 azure_lnet_gw: ''
 azure_lnet_gw_name: 'lnet_gw'
 
+# Azure key vault
+azure_key_vault_enable: false
+azure_key_vault_name: 'myazurevault'
+azure_key_vault_keyname: 'myazurevaultkey'
+
 # Azure VM default variables
 azure_vm_admin_username: 'adminuser'
 azure_vm_admin_password: '4dm1n!'
