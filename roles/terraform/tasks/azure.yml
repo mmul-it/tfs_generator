@@ -21,6 +21,12 @@
     - not azure_vm_admin_ssh_public_key_file is defined
     - azure_vm_disable_password_authentication | bool
 
+- name: Set the ssh RSA public key fact
+  set_fact:
+    azure_vm_admin_ssh_public_key_file: "{{ terraform_config_dir }}/azure-private/azure_id_rsa.pub"
+  when:
+    - not azure_vm_admin_ssh_public_key_file is defined
+
 - block:
     - name: Purge azure-init output directory
       file:
