@@ -62,20 +62,12 @@ resource "azurerm_network_interface" "vm_nic2_{{ vm_basename }}" {
 }
 {% endif %}
 
-{% endfor -%}
+{% endfor %}
 
 # Virtual machine creation blocks
 {% for vm in groups[group.key] %}
 {% set vm_basename = vm.split('.')[0] %}
 {% if hostvars[vm].osdisk_encrypt is defined and hostvars[vm].osdisk_encrypt | bool and azure_key_vault_enable | bool %}
-
-# Image data to encrypt VMs OS disk
-data "azurerm_platform_image" "osdisk_{{ vm_basename }}_image" {
-  location  = azurerm_resource_group.{{ azure_resource_group_name }}.location
-  publisher = "{{ azure_vm_image.publisher }}"
-  offer     = "{{ azure_vm_image.offer }}"
-  sku       = "{{ azure_vm_image.sku }}"
-}
 
 # Encryption Set for VM OS disk
 resource "azurerm_disk_encryption_set" "osdisk_{{ vm_basename }}_encrypted" {
@@ -102,96 +94,59 @@ resource "azurerm_key_vault_access_policy" "osdisk_{{ vm_basename }}" {
   ]
 }
 
-# Virtual machine encrypted OS disk
-resource "azurerm_managed_disk" "osdisk_{{ vm_basename }}" {
-  depends_on             = [azurerm_key_vault_access_policy.osdisk_{{ vm_basename }}]
-  name                   = "osdisk_{{ vm_basename }}"
-  os_type                = "Linux"
-  resource_group_name    = azurerm_resource_group.{{ azure_resource_group_name }}.name
-  location               = azurerm_resource_group.{{ azure_resource_group_name }}.location
-  storage_account_type   = "Standard_LRS"
-  create_option          = "FromImage"
-  image_reference_id     = data.azurerm_platform_image.osdisk_{{ vm_basename }}_image.id
-  disk_size_gb           = "{{ hostvars[vm].osdisk_size }}"
-  disk_encryption_set_id = azurerm_disk_encryption_set.osdisk_{{ vm_basename }}_encrypted.id
-{% if hostvars[vm].azure_tags is defined %}
-
-  tags = {
-{% for key,value in hostvars[vm].azure_tags.items() %}
-    {{ key }} = "{{ value }}"
-{% endfor %}
-  }
-{% endif %}
-}
-
 {% endif %}
 
 # {{ vm }} resource block
-resource "azurerm_virtual_machine" "{{ vm_basename }}" {
+resource "azurerm_linux_virtual_machine" "{{ vm_basename }}" {
   name                         = "{{ vm_basename }}"
-  vm_size                      = "{{ hostvars[vm].vm_size }}"
+  size                         = "{{ hostvars[vm].vm_size }}"
   resource_group_name          = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location                     = azurerm_resource_group.{{ azure_resource_group_name }}.location
+{% if hostvars[vm].osdisk_encrypt is defined and hostvars[vm].osdisk_encrypt | bool and azure_key_vault_enable | bool %}
+  depends_on                   = [azurerm_key_vault_access_policy.osdisk_{{ vm_basename }}]
+{% endif %}
 {% if hostvars[vm].secondary_ip is defined %}
   network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm_basename }}.id, azurerm_network_interface.vm_nic2_{{ vm_basename }}.id]
 {% else %}
   network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm_basename }}.id]
 {% endif %}
-  primary_network_interface_id = azurerm_network_interface.vm_nic1_{{ vm_basename }}.id
 
-  # Delete data disk at vm deletion
-  delete_os_disk_on_termination = true
-  delete_data_disks_on_termination = true
-
+  os_disk {
+    name                   = "osdisk_{{ vm_basename }}"
+    caching                = "ReadWrite"
+    storage_account_type   = "Standard_LRS"
+    disk_size_gb           = "{{ hostvars[vm].osdisk_size }}"
 {% if hostvars[vm].osdisk_encrypt is defined and hostvars[vm].osdisk_encrypt | bool and azure_key_vault_enable | bool %}
-  storage_os_disk {
-    name              = "osdisk_{{ vm_basename }}"
-    create_option     = "Attach"
-    managed_disk_type = "Standard_LRS"
-    managed_disk_id   = azurerm_managed_disk.osdisk_{{ vm_basename }}.id
-    os_type           = "Linux"
+    disk_encryption_set_id = azurerm_disk_encryption_set.osdisk_{{ vm_basename }}_encrypted.id
+{% endif %}
   }
-{% else %}
-  storage_image_reference {
+
+  source_image_reference {
     publisher = "{{ azure_vm_image.publisher }}"
     offer     = "{{ azure_vm_image.offer }}"
     sku       = "{{ azure_vm_image.sku }}"
     version   = "{{ azure_vm_image.version }}"
   }
 
-  storage_os_disk {
-    name              = "osdisk_{{ vm_basename }}"
-    disk_size_gb      = "{{ hostvars[vm].osdisk_size }}"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
-  }
-{% endif %}
-
-  os_profile {
-    computer_name  = "{{ vm }}"
-    admin_username = "{{ azure_vm_admin_username }}"
-{% if azure_vm_disable_password_authentication|lower == 'false' %}
-    admin_password = "{{ azure_vm_admin_password }}"
-{% endif %}
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = {{ azure_vm_disable_password_authentication|lower }}
-{% if azure_vm_admin_ssh_public_key_file != '' %}
-    ssh_keys {
-      path     = "/home/{{ azure_vm_admin_username }}/.ssh/authorized_keys"
-      key_data = file("{{ azure_vm_admin_ssh_public_key_file }}")
-    }
-{% endif %}
-  }
-
   boot_diagnostics {
-    enabled     = true
-    storage_uri = azurerm_storage_account.{{ azure_storage_account_name }}.primary_blob_endpoint
+    storage_account_uri = azurerm_storage_account.{{ azure_storage_account_name }}.primary_blob_endpoint
   }
-{% if hostvars[vm].azure_tags is defined %}
 
+  computer_name  = "{{ vm_basename }}"
+  admin_username = "{{ azure_vm_admin_username }}"
+  disable_password_authentication = {{ azure_vm_disable_password_authentication | lower }}
+{% if not azure_vm_disable_password_authentication | bool %}
+  admin_password = "{{ azure_vm_admin_password }}"
+{% endif %}
+
+{% if azure_vm_admin_ssh_public_key_file != '' %}
+  admin_ssh_key {
+      username       = "{{ azure_vm_admin_username }}"
+      public_key     = file("{{ azure_vm_admin_ssh_public_key_file }}")
+  }
+{% endif %}
+
+{% if hostvars[vm].azure_tags is defined %}
   tags = {
 {% for key,value in hostvars[vm].azure_tags.items() %}
     {{ key }} = "{{ value }}"
@@ -213,6 +168,7 @@ resource "azurerm_disk_encryption_set" "{{ disk.name }}_{{ vm_basename }}_encryp
     type = "SystemAssigned"
   }
 }
+
 resource "azurerm_key_vault_access_policy" "{{ disk.name }}_{{ vm_basename }}" {
   key_vault_id = azurerm_key_vault.{{ azure_key_vault_name }}.id
 
@@ -235,9 +191,9 @@ resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm_basename }}" {
   disk_size_gb           = "{{ disk.size }}"
 {% if disk.encrypt is defined and disk.encrypt | bool and azure_key_vault_enable | bool %}
   disk_encryption_set_id = azurerm_disk_encryption_set.{{ disk.name }}_{{ vm_basename }}_encrypted.id
-  depends_on             = [azurerm_virtual_machine.{{ vm_basename }},azurerm_key_vault_access_policy.{{ disk.name }}_{{ vm_basename }}]
+  depends_on             = [azurerm_linux_virtual_machine.{{ vm_basename }},azurerm_key_vault_access_policy.{{ disk.name }}_{{ vm_basename }}]
 {% else %}
-  depends_on             = [azurerm_virtual_machine.{{ vm_basename }}]
+  depends_on             = [azurerm_linux_virtual_machine.{{ vm_basename }}]
 {% endif %}
 {% if hostvars[vm].azure_tags is defined %}
 
@@ -252,7 +208,7 @@ resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm_basename }}" {
 # {{ vm }} {{ disk.name }} attach disk
 resource "azurerm_virtual_machine_data_disk_attachment" "{{ disk.name }}_{{ vm_basename }}" {
   managed_disk_id    = azurerm_managed_disk.{{ disk.name }}_{{ vm_basename }}.id
-  virtual_machine_id = azurerm_virtual_machine.{{ vm_basename }}.id
+  virtual_machine_id = azurerm_linux_virtual_machine.{{ vm_basename }}.id
   lun                = "{{ disk.lun }}"
   caching            = "ReadWrite"
 }
