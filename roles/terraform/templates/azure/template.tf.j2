@@ -77,9 +77,36 @@ data "azurerm_platform_image" "osdisk_{{ vm_basename }}_image" {
   sku       = "{{ azure_vm_image.sku }}"
 }
 
+# Encryption Set for VM OS disk
+resource "azurerm_disk_encryption_set" "osdisk_{{ vm_basename }}_encrypted" {
+  name                  = "osdisk_{{ vm_basename }}_encrypted"
+  resource_group_name   = azurerm_resource_group.{{ azure_resource_group_name }}.name
+  location              = azurerm_resource_group.{{ azure_resource_group_name }}.location
+  key_vault_key_id      = azurerm_key_vault_key.{{ azure_key_vault_keyname }}.id
+  identity {
+    type = "SystemAssigned"
+  }
+}
+
+# Policy to authorize encrypted
+resource "azurerm_key_vault_access_policy" "osdisk_{{ vm_basename }}" {
+  key_vault_id = azurerm_key_vault.{{ azure_key_vault_name }}.id
+
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = azurerm_disk_encryption_set.osdisk_{{ vm_basename }}_encrypted.identity[0].principal_id
+
+  key_permissions = [
+    "get",
+    "wrapkey",
+    "unwrapkey",
+  ]
+}
+
 # Virtual machine encrypted OS disk
 resource "azurerm_managed_disk" "osdisk_{{ vm_basename }}" {
+  depends_on             = [azurerm_key_vault_access_policy.osdisk_{{ vm_basename }}]
   name                   = "osdisk_{{ vm_basename }}"
+  os_type                = "Linux"
   resource_group_name    = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location               = azurerm_resource_group.{{ azure_resource_group_name }}.location
   storage_account_type   = "Standard_LRS"
@@ -97,15 +124,6 @@ resource "azurerm_managed_disk" "osdisk_{{ vm_basename }}" {
 {% endif %}
 }
 
-resource "azurerm_disk_encryption_set" "osdisk_{{ vm_basename }}_encrypted" {
-  name                  = "osdisk_{{ vm_basename }}_encrypted"
-  resource_group_name   = azurerm_resource_group.{{ azure_resource_group_name }}.name
-  location              = azurerm_resource_group.{{ azure_resource_group_name }}.location
-  key_vault_key_id      = azurerm_key_vault_key.{{ azure_key_vault_keyname }}.id
-  identity {
-    type = "SystemAssigned"
-  }
-}
 {% endif %}
 
 # {{ vm }} resource block
@@ -131,6 +149,7 @@ resource "azurerm_virtual_machine" "{{ vm_basename }}" {
     create_option     = "Attach"
     managed_disk_type = "Standard_LRS"
     managed_disk_id   = azurerm_managed_disk.osdisk_{{ vm_basename }}.id
+    os_type           = "Linux"
   }
 {% else %}
   storage_image_reference {
@@ -184,27 +203,6 @@ resource "azurerm_virtual_machine" "{{ vm_basename }}" {
 {% if hostvars[vm].disks is defined %}
 {% for disk in hostvars[vm].disks %}
 # {{ vm }} {{ disk.name }} managed disk
-resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm_basename }}" {
-  depends_on             = [azurerm_virtual_machine.{{ vm_basename }}]
-  name                   = "{{ disk.name }}_{{ vm_basename }}"
-  resource_group_name    = azurerm_resource_group.{{ azure_resource_group_name }}.name
-  location               = azurerm_resource_group.{{ azure_resource_group_name }}.location
-  storage_account_type   = "Standard_LRS"
-  create_option          = "Empty"
-  disk_size_gb           = "{{ disk.size }}"
-{% if disk.encrypt is defined and disk.encrypt | bool and azure_key_vault_enable | bool %}
-  disk_encryption_set_id = azurerm_disk_encryption_set.{{ disk.name }}_{{ vm_basename }}_encrypted.id
-{% endif %}
-{% if hostvars[vm].azure_tags is defined %}
-
-  tags = {
-{% for key,value in hostvars[vm].azure_tags.items() %}
-    {{ key }} = "{{ value }}"
-{% endfor %}
-  }
-{% endif %}
-}
-
 {% if disk.encrypt is defined and disk.encrypt | bool and azure_key_vault_enable | bool %}
 resource "azurerm_disk_encryption_set" "{{ disk.name }}_{{ vm_basename }}_encrypted" {
   name                  = "{{ disk.name }}_{{ vm_basename }}_encrypted"
@@ -215,7 +213,41 @@ resource "azurerm_disk_encryption_set" "{{ disk.name }}_{{ vm_basename }}_encryp
     type = "SystemAssigned"
   }
 }
+resource "azurerm_key_vault_access_policy" "{{ disk.name }}_{{ vm_basename }}" {
+  key_vault_id = azurerm_key_vault.{{ azure_key_vault_name }}.id
+
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = azurerm_disk_encryption_set.{{ disk.name }}_{{ vm_basename }}_encrypted.identity[0].principal_id
+
+  key_permissions = [
+    "get",
+    "wrapkey",
+    "unwrapkey",
+  ]
+}
 {% endif %}
+resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm_basename }}" {
+  name                   = "{{ disk.name }}_{{ vm_basename }}"
+  resource_group_name    = azurerm_resource_group.{{ azure_resource_group_name }}.name
+  location               = azurerm_resource_group.{{ azure_resource_group_name }}.location
+  storage_account_type   = "Standard_LRS"
+  create_option          = "Empty"
+  disk_size_gb           = "{{ disk.size }}"
+{% if disk.encrypt is defined and disk.encrypt | bool and azure_key_vault_enable | bool %}
+  disk_encryption_set_id = azurerm_disk_encryption_set.{{ disk.name }}_{{ vm_basename }}_encrypted.id
+  depends_on             = [azurerm_virtual_machine.{{ vm_basename }},azurerm_key_vault_access_policy.{{ disk.name }}_{{ vm_basename }}]
+{% else %}
+  depends_on             = [azurerm_virtual_machine.{{ vm_basename }}]
+{% endif %}
+{% if hostvars[vm].azure_tags is defined %}
+
+  tags = {
+{% for key,value in hostvars[vm].azure_tags.items() %}
+    {{ key }} = "{{ value }}"
+{% endfor %}
+  }
+{% endif %}
+}
 
 # {{ vm }} {{ disk.name }} attach disk
 resource "azurerm_virtual_machine_data_disk_attachment" "{{ disk.name }}_{{ vm_basename }}" {
