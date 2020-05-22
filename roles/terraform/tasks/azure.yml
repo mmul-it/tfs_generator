@@ -98,4 +98,4 @@
   loop_control:
     loop_var: group
   when:
-    - group.key not in ('all', 'ungrouped')
+    - group.key not in (azure_vms_excluded_groups)
