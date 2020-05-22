@@ -89,10 +89,10 @@
   when:
     - azure_key_vault_enable | bool 
 
-- name: Deploy Azure machine specific templates
+- name: Deploy Azure virtual machines specific templates
   template:
-    src: azure/template.tf.j2
-    dest: "{{ terraform_config_dir }}/azure/{{ group.key }}.tf"
+    src: azure/vms.tf.j2
+    dest: "{{ terraform_config_dir }}/azure/vms_{{ group.key }}.tf"
   with_dict:
     - "{{ groups }}"
   loop_control:
