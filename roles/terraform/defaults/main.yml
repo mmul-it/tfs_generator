@@ -33,6 +33,7 @@ azure_resources:
   - network
   - network_sec_group
   - availability_set
+azure_public_ips: []
 azure_vpn_resources:
   - virtualnetwork_gw
   - localnetwork_gw
