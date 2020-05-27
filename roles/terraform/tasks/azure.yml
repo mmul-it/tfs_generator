@@ -99,3 +99,10 @@
     loop_var: group
   when:
     - group.key not in (azure_vms_excluded_groups)
+
+- name: Display a reminder for sourcing variables
+  debug:
+    msg:
+      - "Remember to import the variable file in order to tell Terraform which"
+      - "subscription use during the run. Before run Terraform, please execute:"
+      - "    source {{ terraform_config_dir }}/azure-private/variables.source"
