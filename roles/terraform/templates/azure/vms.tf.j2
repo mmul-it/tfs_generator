@@ -2,7 +2,7 @@
 # {{ vm }} - {{ hostvars[vm].vm_size }}
 # Addresses
 {% for address in hostvars[vm].addresses %}
-# - nic{{ loop.index }} {{ address.ip }} {% if address.public_ip is defined %} -> {{ address.public_ip }}{% endif %}
+# - nic{{ loop.index }} {{ address.ip }} ({{ address.subnet }}) {% if address.public_ip is defined %} -> {{ address.public_ip }}{% endif %}
 
 {% endfor %}
 {% if hostvars[vm].disks is defined %}
@@ -26,7 +26,7 @@ resource "azurerm_network_interface" "vm_nic{{ loop.index }}_{{ vm_basename }}" 
 
   ip_configuration {
     name                          = "ip1_{{ vm_basename }}"
-    subnet_id                     = azurerm_subnet.{{ hostvars[vm].subnet }}.id
+    subnet_id                     = azurerm_subnet.{{ address.subnet }}.id
     private_ip_address_allocation = "Static"
     private_ip_address            = "{{ address.ip }}"
 {% if address.public_ip is defined %}
@@ -95,11 +95,7 @@ resource "azurerm_linux_virtual_machine" "{{ vm_basename }}" {
 {% if hostvars[vm].osdisk_encrypt is defined and hostvars[vm].osdisk_encrypt | bool and azure_key_vault_enable | bool %}
   depends_on                   = [azurerm_key_vault_access_policy.osdisk_{{ vm_basename }}]
 {% endif %}
-{% if hostvars[vm].secondary_ip is defined %}
-  network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm_basename }}.id, azurerm_network_interface.vm_nic2_{{ vm_basename }}.id]
-{% else %}
-  network_interface_ids        = [azurerm_network_interface.vm_nic1_{{ vm_basename }}.id]
-{% endif %}
+  network_interface_ids        = [{% for address in hostvars[vm].addresses %}azurerm_network_interface.vm_nic{{ loop.index }}_{{ vm_basename }}.id{% if not loop.last %},{% endif %}{% endfor %}]
 
   os_disk {
     name                   = "osdisk_{{ vm_basename }}"
