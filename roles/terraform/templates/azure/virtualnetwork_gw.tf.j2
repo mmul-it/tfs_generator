@@ -1,15 +1,19 @@
+{% for vnet in azure_vnets %}
+{% if vnet.gateway_subnet is defined %}
+# Virtual Network {{ vnet.name }}
+
 # Gateway subnet creation block (required for vpn P2S) please notice that
 # the name "GatewaySubnet" is mandatory for Azure
-resource "azurerm_subnet" "{{ azure_gw_subnet_name }}" {
+resource "azurerm_subnet" "{{ vnet.gateway_subnet.name }}" {
   name                 = "GatewaySubnet"
   resource_group_name  = azurerm_resource_group.{{ azure_resource_group_name }}.name
-  virtual_network_name = azurerm_virtual_network.{{ azure_vnet_name }}.name
-  address_prefix       = "{{ azure_gw_subnet_addr_prefix }}"
+  virtual_network_name = azurerm_virtual_network.{{ vnet.name }}.name
+  address_prefix       = "{{ vnet.gateway_subnet.prefix }}"
 }
 
 # Public IP for Virtual Network Gateway
-resource "azurerm_public_ip" "{{ azure_vnet_gw_name }}_publicip" {
-  name                = "{{ azure_vnet_gw_name }}_publicip"
+resource "azurerm_public_ip" "{{ vnet.gateway_subnet.gw_name }}_publicip" {
+  name                = "{{ vnet.gateway_subnet.gw_name }}_publicip"
   resource_group_name = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location            = azurerm_resource_group.{{ azure_resource_group_name }}.location
   # VNGateway supports only "Dynamic" allocation ip
@@ -17,8 +21,8 @@ resource "azurerm_public_ip" "{{ azure_vnet_gw_name }}_publicip" {
 }
 
 # Virtual Network Gateway for Site-to-Site VPN
-resource "azurerm_virtual_network_gateway" "{{ azure_vnet_gw_name }}" {
-  name                = "{{ azure_vnet_gw_name }}"
+resource "azurerm_virtual_network_gateway" "{{ vnet.gateway_subnet.gw_name }}" {
+  name                = "{{ vnet.gateway_subnet.gw_name }}"
   resource_group_name = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location            = azurerm_resource_group.{{ azure_resource_group_name }}.location
   type                = "Vpn"
@@ -28,19 +32,22 @@ resource "azurerm_virtual_network_gateway" "{{ azure_vnet_gw_name }}" {
   sku                 = "VpnGw1"
 
   ip_configuration {
-    public_ip_address_id = azurerm_public_ip.{{ azure_vnet_gw_name }}_publicip.id
-    subnet_id            = azurerm_subnet.{{ azure_gw_subnet_name }}.id
+    public_ip_address_id = azurerm_public_ip.{{ vnet.gateway_subnet.gw_name }}_publicip.id
+    subnet_id            = azurerm_subnet.{{ vnet.gateway_subnet.gw_name }}.id
   }
 }
 
 # Data resource to map ip address (*.ip_address) to Local Network Gateway
-data "azurerm_public_ip" "{{ azure_vnet_gw_name }}_publicip" {
-  depends_on          = [azurerm_virtual_network_gateway.{{ azure_vnet_gw_name }}]
-  name                = azurerm_public_ip.{{ azure_vnet_gw_name }}_publicip.name
+data "azurerm_public_ip" "{{ vnet.gateway_subnet.gw_name }}_publicip" {
+  depends_on          = [azurerm_virtual_network_gateway.{{ vnet.gateway_subnet.gw_name }}]
+  name                = azurerm_public_ip.{{ vnet.gateway_subnet.gw_name }}_publicip.name
   resource_group_name = azurerm_resource_group.{{ azure_resource_group_name }}.name
 }
 
 # Will print data resource values after deploy is completed
-output "{{ azure_vnet_gw_name }}_public_ip_address" {
-  value = data.azurerm_public_ip.{{ azure_vnet_gw_name }}_publicip.ip_address
+output "{{ vnet.gateway_subnet.gw_name }}_public_ip_address" {
+  value = data.azurerm_public_ip.{{ vnet.gateway_subnet.gw_name }}_publicip.ip_address
 }
+
+{% endif -%}
+{% endfor -%}
