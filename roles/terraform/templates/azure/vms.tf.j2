@@ -103,7 +103,11 @@ resource "azurerm_linux_virtual_machine" "{{ vm_basename }}" {
     storage_account_type   = "Standard_LRS"
     disk_size_gb           = "{{ hostvars[vm].osdisk_size }}"
 {% if hostvars[vm].osdisk_encrypt is defined and hostvars[vm].osdisk_encrypt | bool and azure_key_vault_enable | bool %}
+{% if hostvars[vm].azure_renamed_id is defined and hostvars[vm].azure_renamed_id | bool %}
+    disk_encryption_set_id = replace(azurerm_disk_encryption_set.osdisk_{{ vm_basename }}_encrypted.id, "{{ azure_resource_group_name }}", "{{ azure_resource_group_name|upper }}") 
+{% else %}
     disk_encryption_set_id = azurerm_disk_encryption_set.osdisk_{{ vm_basename }}_encrypted.id
+{% endif %}
 {% endif %}
   }
 
