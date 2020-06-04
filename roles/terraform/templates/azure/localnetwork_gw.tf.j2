@@ -1,10 +1,12 @@
 # Local Network Gateway used to map remote host peer to allow Site-to-Site VPN
 # and Connections for VnetGW <-> Remote Peer
-
-{% for localnetworkgw in azure_localnetworkgws %}
+{% for vnet in azure_vnets %}
+# Virtual Network {{ vnet.name }}
+{% if vnet.localnetworkgws is defined %}
+{% for localnetworkgw in vnet.localnetworkgws %}
 # {{ localnetworkgw.name }} Local Network Gateway (Remote Peer)
 resource "azurerm_local_network_gateway" "{{ localnetworkgw.name }}" {
-  depends_on          = [azurerm_virtual_network_gateway.{{ azure_vnet_gw_name }}]
+  depends_on          = [azurerm_virtual_network_gateway.{{ vnet.gateway_name }}]
   name                = "{{ localnetworkgw.name }}"
   resource_group_name = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location            = azurerm_resource_group.{{ azure_resource_group_name }}.location
@@ -18,7 +20,7 @@ resource "azurerm_virtual_network_gateway_connection" "{{ localnetworkgw.name }}
   resource_group_name        = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location                   = azurerm_resource_group.{{ azure_resource_group_name }}.location
   type                       = "IPSec"
-  virtual_network_gateway_id = azurerm_virtual_network_gateway.{{ azure_vnet_gw_name }}.id
+  virtual_network_gateway_id = azurerm_virtual_network_gateway.{{ vnet.gateway_name }}.id
   local_network_gateway_id   = azurerm_local_network_gateway.{{ localnetworkgw.name }}.id
   shared_key                 = "{{ localnetworkgw.shared_key }}"
 {% if localnetworkgw.protocol is defined %}
@@ -35,4 +37,6 @@ resource "azurerm_virtual_network_gateway_connection" "{{ localnetworkgw.name }}
 {% endif %}
 }
 
+{% endfor -%}
+{% endif -%}
 {% endfor -%}

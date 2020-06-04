@@ -23,9 +23,6 @@ azure_tfstate_resources:
   - storage
   - storage_container
 # Azure infrastructure details
-azure_subnets:
-  - name: subnet_server
-    prefix: 192.168.0.0/25
 azure_resources:
   - provider
   - resource_group
@@ -33,7 +30,6 @@ azure_resources:
   - network
   - network_sec_group
   - availability_set
-azure_public_ips: []
 azure_vpn_resources:
   - virtualnetwork_gw
   - localnetwork_gw
@@ -44,14 +40,18 @@ azure_client_id: ''
 azure_client_secret: ''
 azure_tenant_id: ''
 azure_network_sec_group_name: 'network_sec_group'
-azure_vnet_name: 'vnet'
-azure_vnet_addr_space: '192.168.0.0/24'
-azure_gw_subnet_name: 'gateway_subnet'
-azure_gw_subnet_addr_prefix: '192.168.0.248/29'
 azure_storage_account_name: 'mystorageaccount'
-azure_vnet_gw_name: 'vnet_gw'
-azure_lnet_gw: ''
-azure_lnet_gw_name: 'lnet_gw'
+azure_public_ips: []
+azure_vnets:
+  - name: 'vnet'
+    addr_space: '192.168.0.0/24'
+    subnets:
+      - name: 'subnet_server'
+        prefix: '192.168.0.0/24'
+    gateway_subnet:
+      - name: 'subnet_gateway'
+        prefix: '192.168.0.248/29'
+        gw_name: 'vnet_gw'
 
 # Azure key vault
 azure_key_vault_enable: false

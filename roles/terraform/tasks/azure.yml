@@ -79,8 +79,6 @@
     dest: "{{ terraform_config_dir }}/azure/{{ item }}.tf"
   with_items:
     - "{{ azure_vpn_resources }}"
-  when:
-    - azure_localnetworkgws is defined
 
 - name: Deploy Azure key vault template
   template:

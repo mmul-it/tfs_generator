@@ -1,6 +1,6 @@
 # Subnet that will be created:
 {% for vnet in azure_vnets %}
-{% for subnet in azure_subnets %}
+{% for subnet in vnet.subnets %}
 # {{ subnet.name }} {{ subnet.prefix }} ({{ vnet.name }})
 {% endfor %}
 {% endfor %}
