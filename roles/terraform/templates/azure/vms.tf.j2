@@ -203,6 +203,45 @@ resource "azurerm_virtual_machine_data_disk_attachment" "{{ disk.name }}_{{ vm_b
   caching            = "ReadWrite"
 }
 
+resource "azurerm_virtual_machine_extension" "extension_{{ disk.name }}_{{ vm_basename }}" {
+  name                 = "extension_{{ disk.name }}_{{ vm_basename }}"
+  virtual_machine_id   = azurerm_linux_virtual_machine.{{ vm_basename }}.id
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.0"
+  depends_on           = [azurerm_virtual_machine_data_disk_attachment.{{ disk.name }}_{{ vm_basename }}]
+  settings             = jsonencode({ script = base64encode(local.{{ disk.name }}_{{ vm_basename }}_partition_mount) })
+}
+
 {% endfor %}
 {% endif %}
 {% endfor %}
+
+locals {
+{% for vm in groups[group.key] %}
+{% set vm_basename = vm.split('.')[0] %}
+{% if hostvars[vm].disks is defined %}
+{% for disk in hostvars[vm].disks %}
+  # {{ vm }} {{ disk.name }} partition and mount script
+  {{ disk.name }}_{{ vm_basename }}_partition_mount = <<EOF
+    # Define the device label
+    parted '/dev/disk/azure/scsi1/lun{{ disk.lun }}' --script -- mklabel gpt
+    # Create the single partition
+    parted -a optimal '/dev/disk/azure/scsi1/lun{{ disk.lun }}' --script -- mkpart primary 0% 100%
+    # Wait 60 seconds until the partition is visible
+    for i in $(seq 1 60); do [ -b '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1' ] && break || $(sleep 1; continue); done
+    # Check partition existence
+    [ -b '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1' ] || exit 1
+    # Create the filesystem
+    mkfs -t {{ disk.fstype }} '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1'
+    # Create the mount point
+    mkdir -p '{{ disk.mountpoint }}'
+    # Add mount point to /etc/fstab
+    echo '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1 {{ disk.mountpoint }} {{ disk.fstype }} defaults 0 0' >> /etc/fstab
+    # Mount the mount point
+    mount '{{ disk.mountpoint }}'
+  EOF
+{% endfor %}
+{% endif %}
+{% endfor %}
+}
