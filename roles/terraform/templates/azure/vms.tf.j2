@@ -1,4 +1,4 @@
-{% for vm in groups[group.key] %}
+{% for vm in groups[group_name] %}
 # {{ vm }} - {{ hostvars[vm].vm_size }}
 # Addresses
 {% for address in hostvars[vm].addresses %}
@@ -15,7 +15,7 @@
 {% endfor %}
 
 # NIC creation blocks
-{% for vm in groups[group.key] %}
+{% for vm in groups[group_name] %}
 {% set vm_basename = vm.split('.')[0] %}
 {% for address in hostvars[vm].addresses %}
 # Set nic{{ loop.index }} {{ vm }}
@@ -55,7 +55,7 @@ resource "azurerm_network_interface_security_group_association" "{{ vm_basename 
 {% endfor %}
 
 # Virtual machine creation blocks
-{% for vm in groups[group.key] %}
+{% for vm in groups[group_name] %}
 {% set vm_basename = vm.split('.')[0] %}
 {% if hostvars[vm].osdisk_encrypt is defined and hostvars[vm].osdisk_encrypt | bool and azure_key_vault_enable | bool %}
 
@@ -218,7 +218,7 @@ resource "azurerm_virtual_machine_extension" "extension_{{ disk.name }}_{{ vm_ba
 {% endfor %}
 
 locals {
-{% for vm in groups[group.key] %}
+{% for vm in groups[group_name] %}
 {% set vm_basename = vm.split('.')[0] %}
 {% if hostvars[vm].disks is defined %}
 {% for disk in hostvars[vm].disks %}

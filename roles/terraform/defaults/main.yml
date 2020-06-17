@@ -70,7 +70,6 @@ azure_vm_image:
   offer: 'CentOS'
   sku: '7_7-gen2'
   version: '7.7.2020042901'
-# Ansible groups to be excluded from Azure vms_<group-name>.tf generation
-azure_vms_excluded_groups:
+# Ansible groups to be included for Azure vms_<group-name>.tf file generation
+azure_vms_groups:
   - 'all'
-  - 'ungrouped'

@@ -90,13 +90,11 @@
 - name: Deploy Azure virtual machines specific templates
   template:
     src: azure/vms.tf.j2
-    dest: "{{ terraform_config_dir }}/azure/vms_{{ group.key }}.tf"
-  with_dict:
-    - "{{ groups }}"
+    dest: "{{ terraform_config_dir }}/azure/vms_{{ group_name }}.tf"
+  with_items:
+    - "{{ azure_vms_groups }}"
   loop_control:
-    loop_var: group
-  when:
-    - group.key not in (azure_vms_excluded_groups)
+    loop_var: group_name
 
 - name: Display a reminder for sourcing variables
   debug:
