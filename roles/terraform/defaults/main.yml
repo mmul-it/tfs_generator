@@ -27,6 +27,7 @@ azure_resources:
   - provider
   - resource_group
   - storage
+  - additional_storage
   - network
   - network_sec_group
   - availability_set
