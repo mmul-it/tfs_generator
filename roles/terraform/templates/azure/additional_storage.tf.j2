@@ -24,7 +24,7 @@ resource "azurerm_storage_account" "{{ storage.name }}" {
   network_rules {
     default_action             = "Deny"
 {% if storage.allowed_subnets is defined %}
-    virtual_network_subnet_ids = [{% for subnet in storage.allowed_subnets %}"azurerm_subnet.{{ subnet }}.id"{% if not loop.last %},{% endif %}{% endfor %}]
+    virtual_network_subnet_ids = [{% for subnet in storage.allowed_subnets %}azurerm_subnet.{{ subnet }}.id{% if not loop.last %},{% endif %}{% endfor %}]
 {% endif %}
 {% if storage.allowed_ips is defined %}
     ip_rules                   = [{% for ip in storage.allowed_ips %}"{{ ip }}"{% if not loop.last %},{% endif %}{% endfor %}]
