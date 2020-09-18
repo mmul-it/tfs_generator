@@ -12,6 +12,7 @@
         name: unzip
         state: present
       become: true
+      when: ansible_os_family != "Darwin"
 
     - name: "Create directory for terraform binary {{ terraform_config_dir }}/bin"
       file:
