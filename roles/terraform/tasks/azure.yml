@@ -87,6 +87,13 @@
   when:
     - azure_key_vault_enable | bool
 
+- name: Deploy Azure database template
+  template:
+    src: "azure/database.tf.j2"
+    dest: "{{ terraform_config_dir }}/azure/database.tf"
+  when:
+    - azure_database_servers is defined
+
 - name: Deploy Azure virtual machines specific templates
   include_tasks: azure-vms.yml
   with_items:

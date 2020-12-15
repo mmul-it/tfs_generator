@@ -1,0 +1,55 @@
+# Database server that will be created:
+{% for server in azure_database_servers %}
+# {{ server.name }} ({{ server.kind }} {{ server.version }}
+{% for database in server.databases %}
+# - {{ database.name }}
+{% endfor %}
+{% endfor %}
+
+{% for server in azure_database_servers %}
+# {{ server.kind }} server {{ server.name }} definition
+resource "azurerm_{{ server.kind|lower }}_server" "{{ server.name }}" {
+	name                = "{{ server.name }}"
+	location            = azurerm_resource_group.{{ azure_resource_group_name }}.location
+	resource_group_name = azurerm_resource_group.{{ azure_resource_group_name }}.name
+
+	# Login info
+	administrator_login          = "{{ server.admin_user }}"
+	administrator_login_password = "{{ server.admin_password }}"
+
+	# Size and version info
+	sku_name   = "{{ server.sku }}"
+	storage_mb = {{ server.storage_mb }}
+	version    = "{{ server.version }}"
+
+	# Server configuration
+	auto_grow_enabled             = {{ server.auto_grow }}
+	backup_retention_days         = {{ server.backup_retention }}
+	public_network_access_enabled = {{ server.public_access }}
+	ssl_enforcement_enabled       = {{ server.ssl }}
+{% if server.create_mode is defined and server.create_mode != 'Default' %}
+	create_mode                   = {{ server.create_mode }}
+	creation_source_server_id     = {{ server.creation_source_id }}
+{% if server.create_mode == 'PointInTimeRestore' %}
+	restore_point_in_time         = {{ server.restore_point_in_time }}
+{% endif %}
+{% else %}
+	geo_redundant_backup_enabled  = {{ server.geo_redundant_backup }}
+{% endif %}
+{% if server.kind|lower == 'mysql' %}
+	infrastructure_encryption_enabled = {{ server.encryption }}
+	ssl_minimal_tls_version_enforced  = "{{ server.ssl_minimal_tls }}"
+{% endif %}
+}
+
+{% for database in server.databases %}
+# {{ database.name }} database definition ({{ server.name }})
+resource "azurerm_{{ server.kind|lower }}_database" "{{ database.name }}" {
+	name                = "{{ database.name }}"
+	resource_group_name = azurerm_resource_group.{{ azure_resource_group_name }}.name
+	server_name         = azurerm_{{ server.kind|lower }}_server.{{ server.name }}.name
+	charset             = "{{ database.charset }}"
+	collation           = "{{ database.collation }}"
+}
+{% endfor %}
+{% endfor %}
