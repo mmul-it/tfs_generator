@@ -1,9 +1,11 @@
 # Database server that will be created:
 {% for server in azure_database_servers %}
 # {{ server.name }} ({{ server.kind }} {{ server.version }}
+{% if server.databases is defined %}
 {% for database in server.databases %}
 # - {{ database.name }}
 {% endfor %}
+{% endif %}
 {% endfor %}
 
 {% for server in azure_database_servers %}
@@ -29,7 +31,7 @@ resource "azurerm_{{ server.kind|lower }}_server" "{{ server.name }}" {
 	ssl_enforcement_enabled       = {{ server.ssl }}
 {% if server.create_mode is defined and server.create_mode != 'Default' %}
 	create_mode                   = {{ server.create_mode }}
-	creation_source_server_id     = {{ server.creation_source_id }}
+	creation_source_server_id     = azurerm_{{ server.kind|lower }}_server.{{ server.master }}.id
 {% if server.create_mode == 'PointInTimeRestore' %}
 	restore_point_in_time         = {{ server.restore_point_in_time }}
 {% endif %}
@@ -42,6 +44,7 @@ resource "azurerm_{{ server.kind|lower }}_server" "{{ server.name }}" {
 {% endif %}
 }
 
+{% if server.databases is defined %}
 {% for database in server.databases %}
 # {{ database.name }} database definition ({{ server.name }})
 resource "azurerm_{{ server.kind|lower }}_database" "{{ database.name }}" {
@@ -52,4 +55,5 @@ resource "azurerm_{{ server.kind|lower }}_database" "{{ database.name }}" {
 	collation           = "{{ database.collation }}"
 }
 {% endfor %}
+{% endif %}
 {% endfor %}

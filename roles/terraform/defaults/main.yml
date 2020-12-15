@@ -79,10 +79,10 @@ azure_vms_groups:
 # (https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mysql_server)
 # (https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mariadb_server)
 #azure_database_servers:
-#  - name: 'server1-name'
+#  # Master database
+#  - name: 'master-name'
 #    kind: 'MariaDB'
 #    version: '10.2'
-
 #    # MySQL/MariaDB common parameters
 #    admin_user: 'admin'
 #    admin_password: 'password'
@@ -93,18 +93,40 @@ azure_vms_groups:
 #    geo_redundant_backup: 'false'
 #    public_access: 'false'
 #    ssl: 'true'
-#
 #    # For replicas
 #    create_mode: 'Default'
 #    creation_source_id: ''
 #    restore_point_in_time: ''
-#
 #    # MySQL specific parameters
 #    encryption: 'true'
 #    ssl_minimal_tls: 'TLS1_2'
-#
 #    # Databases definitions
 #    databases:
 #      - name: 'exampledb1'
 #        charset: 'utf8'
 #        collation: 'utf8_unicode_ci'
+#  # Slave database
+#  - name: 'master-name'
+#    kind: 'MariaDB'
+#    version: '10.2'
+#    # MySQL/MariaDB common parameters
+#    admin_user: 'admin'
+#    admin_password: 'password'
+#    sku: 'B_Gen5_2'
+#    storage_mb: 5120
+#    auto_grow: 'true'
+#    backup_retention: 7
+#    geo_redundant_backup: 'false'
+#    public_access: 'false'
+#    ssl: 'true'
+#    # For replicas
+#    create_mode: 'Default'
+#    creation_source_id: ''
+#    restore_point_in_time: ''
+#    # MySQL specific parameters
+#    encryption: 'true'
+#    ssl_minimal_tls: 'TLS1_2'
+#    # Databases definitions
+#    # For replicas
+#    create_mode: 'Replica'
+#    master: 'master-db'
