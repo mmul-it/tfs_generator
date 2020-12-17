@@ -1,7 +1,7 @@
 # Subnet that will be created:
 {% for vnet in azure_vnets %}
 {% for subnet in vnet.subnets %}
-# {{ subnet.name }} {{ subnet.prefix }} ({{ vnet.name }})
+# {{ subnet.name }} {% for prefix in subnet.prefixes %}"{{ prefix }}"{%- if not loop.last -%}, {%- endif -%}{% endfor %} ({{ vnet.name }})
 {% endfor %}
 {% endfor %}
 
@@ -20,7 +20,7 @@ resource "azurerm_subnet" "{{ subnet.name }}" {
   name                 = "{{ subnet.name }}"
   resource_group_name  = azurerm_resource_group.{{ azure_resource_group_name }}.name
   virtual_network_name = azurerm_virtual_network.{{ vnet.name }}.name
-  address_prefix       = "{{ subnet.prefix }}"
+  address_prefixes     = [{% for prefix in subnet.prefixes %}"{{ prefix }}"{%- if not loop.last -%}, {%- endif -%}{% endfor %}]
 {% if subnet.endpoints is defined %}
   service_endpoints    = [{% for endpoint in subnet.endpoints %}"{{ endpoint }}"{% if not loop.last %},{% endif %}{% endfor %}]
 {% endif %}
