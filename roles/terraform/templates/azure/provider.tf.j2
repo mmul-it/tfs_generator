@@ -14,9 +14,7 @@ variable "azure_tenant_id" {
   description = "tenant_id to be set as env variable"
 }
 
-
 provider "azurerm" {
-  version = "2.0.0"
   features {}
   subscription_id = var.azure_subscription_id
   client_id       = var.azure_client_id
@@ -24,14 +22,21 @@ provider "azurerm" {
   tenant_id       = var.azure_tenant_id
 }
 
+terraform {
+  required_providers {
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = "{{ azure_provider_version }}"
+    }
+  }
 {% if terraform_tfstate_on_azure_storage_container is defined and
       skip_azure_backend is not defined %}
-terraform {
+
   backend "azurerm" {
     resource_group_name  = "{{ azure_tfstate_resource_group_name }}"
     storage_account_name = "{{ terraform_tfstate_on_azure_storage_container }}"
     container_name       = "{{ terraform_tfstate_on_azure_storage_container }}"
     key                  = "terraform.tfstate"
   }
-}
 {% endif %}
+}

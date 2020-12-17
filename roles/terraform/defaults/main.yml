@@ -16,6 +16,7 @@ terraform_cloud_provider: 'azure'
 
 # Azure cloud provider default variables
 # Azure storage blob for synchronized tfstate
+azure_provider_version: '2.40.0'
 azure_tfstate_resource_group_name: "terraform-tfstate"
 azure_tfstate_resources:
   - provider
