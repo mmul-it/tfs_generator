@@ -2,7 +2,7 @@
 
 # Install terraform
 terraform_binary_install: true
-terraform_binary_version: '0.12.26'
+terraform_binary_version: '0.14.2'
 terraform_binary_platform: 'linux_amd64'
 
 # Where to deploy terraform resource files
