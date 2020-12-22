@@ -30,13 +30,14 @@ resource "azurerm_{{ server.kind|lower }}_server" "{{ server.name }}" {
 	public_network_access_enabled = {{ server.public_access }}
 	ssl_enforcement_enabled       = {{ server.ssl }}
 {% if server.create_mode is defined and server.create_mode != 'Default' %}
-	create_mode                   = {{ server.create_mode }}
+	create_mode                   = "{{ server.create_mode }}"
 	creation_source_server_id     = azurerm_{{ server.kind|lower }}_server.{{ server.master }}.id
-{% if server.create_mode == 'PointInTimeRestore' %}
+{% if server.create_mode == 'PointInTimeRestore' and server.restore_point_in_time is defined %}
 	restore_point_in_time         = {{ server.restore_point_in_time }}
 {% endif %}
-{% else %}
+{% if server.geo_redundant_backup is defined %}
 	geo_redundant_backup_enabled  = {{ server.geo_redundant_backup }}
+{% endif %}
 {% endif %}
 {% if server.kind|lower == 'mysql' %}
 	infrastructure_encryption_enabled = {{ server.encryption }}
