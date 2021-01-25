@@ -1,3 +1,4 @@
+{% if azure_database_servers is defined %}
 # Database server that will be created:
 {% for server in azure_database_servers %}
 # {{ server.name }} ({{ server.kind }} {{ server.version }}
@@ -58,3 +59,4 @@ resource "azurerm_{{ server.kind|lower }}_database" "{{ database.name }}" {
 {% endfor %}
 {% endif %}
 {% endfor %}
+{% endif %}
