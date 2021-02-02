@@ -58,5 +58,18 @@ resource "azurerm_{{ server.kind|lower }}_database" "{{ database.name }}" {
 }
 {% endfor %}
 {% endif %}
+
+{% if server.firewall_rules is defined %}
+{% for firewall_rule in server.firewall_rules %}
+resource "azurerm_{{ server.kind|lower }}_firewall_rule" "{{ firewall_rule.name }}" {
+	resource_group_name = azurerm_resource_group.{{ azure_resource_group_name }}.name
+	server_name         = azurerm_{{ server.kind|lower }}_server.{{ server.name }}.name
+	name                = "{{ firewall_rule.name }}"
+	start_ip_address    = {{ firewall_rule.start_ip }}
+	end_ip_address      = {{ firewall_rule.end_ip }}
+}
+{% endfor %}
+{% endif %}
+
 {% endfor %}
 {% endif %}
