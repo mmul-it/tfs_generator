@@ -8,6 +8,7 @@ resource "azurerm_linux_virtual_machine" "{{ vm_basename }}" {
   size                         = "{{ hostvars[vm].vm_size }}"
   resource_group_name          = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location                     = azurerm_resource_group.{{ azure_resource_group_name }}.location
+  encryption_at_host_enabled   = false
 {% if hostvars[vm].osdisk_encrypt is defined and hostvars[vm].osdisk_encrypt | bool and azure_key_vault_enable | bool %}
   depends_on                   = [azurerm_key_vault_access_policy.osdisk_{{ vm_basename }}]
 {% endif %}
