@@ -32,8 +32,8 @@ before running terraform commands.
   and you're ready to go.
 
 - Login with Azure: this is needed only if you store the Terraform state file
-  (tfstate) on an Azure Storage Container. This best practice will be very usefull
-  when multiple people works on the same Terraform-provided Azure
+  (tfstate) on an Azure Storage Container. This best practice will be very
+  usefull when multiple people works on the same Terraform-provided Azure
   infrastructure, but require to log in into Azure via the azure-cli (already
   installed in your environment in the previous step). So, in your environment
   simply execute this command:
@@ -52,11 +52,16 @@ before running terraform commands.
   After few seconds the az command on your computer will output a json (which
   contains your account list).
 
-  NOTE: if you have configured your login as a Service Principal, you need also
-  to login with the user, tenant and certificate provided by your account
+  NOTE 1: if you have configured your login as a Service Principal, you need
+  also to login with the user, tenant and certificate provided by your account
   administrator. Once you obtained this, execute:
 
       (venv-terraform)$ az login --service-principal -u <user URL> -p <certificate pem> --tenant <tenant id>
+  
+  NOTE 2: with Terraform versions >=0.13.x and hashicorp/azurerm provider >=
+  2.5.x the login as Service Principal isn't supported anymore. If you use
+  those more recent versions (or use the defaults provided by the role) you can
+  skip the login as a Service Principal. Everything still works as expected.
 
   You are now ready to go with Terraform state on Azure Storage Container
 
@@ -81,8 +86,8 @@ variable. Here, you can find this subdirectories:
 ### Prepare Azure for keeping the tfstate file
 If it's the first time you use Terraform to provision Azure resources, and you
 choosed to keep the Terraform tfstate on Azure, you need to prepare Azure to
-store the file. In your ${terraform_config_dir}/azure-init/ directory you've all
-the Terraform resources needed to do this.
+store the file. In your ${terraform_config_dir}/azure-init/ directory you've
+all the Terraform resources needed to do this.
 
     (venv-terraform)$ terraform/myenv/bin/terraform init terraform/myenv/azure-init
     ...
