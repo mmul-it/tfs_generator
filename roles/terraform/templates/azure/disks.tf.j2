@@ -63,7 +63,7 @@ resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm_basename }}" {
   name                   = "{{ disk.name }}_{{ vm_basename }}"
   resource_group_name    = azurerm_resource_group.{{ azure_resource_group_name }}.name
   location               = azurerm_resource_group.{{ azure_resource_group_name }}.location
-  storage_account_type   = "Standard_LRS"
+  storage_account_type   = "{{ disk.type|default('Standard_LRS') }}"
   create_option          = "Empty"
   disk_size_gb           = "{{ disk.size }}"
 {% if disk.encrypt is defined and disk.encrypt | bool and azure_key_vault_enable | bool %}
@@ -72,14 +72,13 @@ resource "azurerm_managed_disk" "{{ disk.name }}_{{ vm_basename }}" {
 {% else %}
   depends_on             = [azurerm_linux_virtual_machine.{{ vm_basename }}]
 {% endif %}
-{% if hostvars[vm].azure_tags is defined %}
-
   tags = {
+{% if hostvars[vm].azure_tags is defined %}
 {% for key,value in hostvars[vm].azure_tags.items() %}
     {{ key }} = "{{ value }}"
 {% endfor %}
-  }
 {% endif %}
+  }
 }
 
 # {{ vm }} - Disk attachment for {{ disk.name }}
@@ -92,13 +91,15 @@ resource "azurerm_virtual_machine_data_disk_attachment" "{{ disk.name }}_{{ vm_b
 
 # {{ vm }} - Disk extension for {{ disk.name }}
 resource "azurerm_virtual_machine_extension" "extension_{{ disk.name }}_{{ vm_basename }}" {
-  name                 = "extension_{{ disk.name }}_{{ vm_basename }}"
-  virtual_machine_id   = azurerm_linux_virtual_machine.{{ vm_basename }}.id
-  publisher            = "Microsoft.Azure.Extensions"
-  type                 = "CustomScript"
-  type_handler_version = "2.0"
-  depends_on           = [azurerm_virtual_machine_data_disk_attachment.{{ disk.name }}_{{ vm_basename }}]
-  settings             = jsonencode({ script = base64encode(local.{{ disk.name }}_{{ vm_basename }}_partition_mount) })
+  name                       = "extension_{{ disk.name }}_{{ vm_basename }}"
+  virtual_machine_id         = azurerm_linux_virtual_machine.{{ vm_basename }}.id
+  publisher                  = "Microsoft.Azure.Extensions"
+  type                       = "CustomScript"
+  type_handler_version       = "2.0"
+  depends_on                 = [azurerm_virtual_machine_data_disk_attachment.{{ disk.name }}_{{ vm_basename }}]
+  auto_upgrade_minor_version = false
+  settings                   = jsonencode({ script = base64encode(local.{{ disk.name }}_{{ vm_basename }}_partition_mount) })
+  tags                       = null
 }
 
 {% endfor %}
