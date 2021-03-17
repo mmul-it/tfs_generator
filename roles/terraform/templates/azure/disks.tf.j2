@@ -89,20 +89,27 @@ resource "azurerm_virtual_machine_data_disk_attachment" "{{ disk.name }}_{{ vm_b
   caching            = "ReadWrite"
 }
 
-# {{ vm }} - Disk extension for {{ disk.name }}
-resource "azurerm_virtual_machine_extension" "extension_{{ disk.name }}_{{ vm_basename }}" {
-  name                       = "extension_{{ disk.name }}_{{ vm_basename }}"
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+{% for vm in groups[group_name] %}
+{% set vm_basename = vm.split('.')[0] %}
+{% if hostvars[vm].disks is defined %}
+# {{ vm }} - Disk extension
+{% set extension_name = hostvars[vm].extension_name|default("extension_" ~ vm_basename) %}
+resource "azurerm_virtual_machine_extension" "{{ extension_name }}" {
+  name                       = "{{ extension_name }}"
   virtual_machine_id         = azurerm_linux_virtual_machine.{{ vm_basename }}.id
   publisher                  = "Microsoft.Azure.Extensions"
   type                       = "CustomScript"
   type_handler_version       = "2.0"
-  depends_on                 = [azurerm_virtual_machine_data_disk_attachment.{{ disk.name }}_{{ vm_basename }}]
+  depends_on                 = [{% for disk in hostvars[vm].disks %}azurerm_virtual_machine_data_disk_attachment.{{ disk.name }}_{{ vm_basename }}{% if not loop.last %},{% endif %}{% endfor %}]
   auto_upgrade_minor_version = false
-  settings                   = jsonencode({ script = base64encode(local.{{ disk.name }}_{{ vm_basename }}_partition_mount) })
+  settings                   = jsonencode({ script = base64encode(local.{{ vm_basename }}_partition_mount) })
   tags                       = null
 }
 
-{% endfor %}
 {% endif %}
 {% endfor %}
 
@@ -111,27 +118,31 @@ locals {
 {% for vm in groups[group_name] %}
 {% set vm_basename = vm.split('.')[0] %}
 {% if hostvars[vm].disks is defined %}
+  # {{ vm }} disks partition and mount script
+  {{ vm_basename }}_partition_mount = <<EOF
 {% for disk in hostvars[vm].disks %}
-  # {{ vm }} {{ disk.name }} partition and mount script
-  {{ disk.name }}_{{ vm_basename }}_partition_mount = <<EOF
-    # Define the device label
-    parted '/dev/disk/azure/scsi1/lun{{ disk.lun }}' --script -- mklabel gpt
-    # Create the single partition
-    parted -a optimal '/dev/disk/azure/scsi1/lun{{ disk.lun }}' --script -- mkpart primary 0% 100%
-    # Wait 60 seconds until the partition is visible
-    for i in $(seq 1 60); do [ -b '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1' ] && break || $(sleep 1; continue); done
-    # Check partition existence
-    [ -b '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1' ] || exit 1
-    # Create the filesystem
-    mkfs -t {{ disk.fstype }} '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1'
-    # Create the mount point
-    mkdir -p '{{ disk.mountpoint }}'
-    # Add mount point to /etc/fstab
-    echo '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1 {{ disk.mountpoint }} {{ disk.fstype }} defaults 0 0' >> /etc/fstab
-    # Mount the mount point
-    mount '{{ disk.mountpoint }}'
-  EOF
+    # {{ disk.name }}
+    grep /dev/disk/azure/scsi1/lun{{ disk.lun }} /etc/fstab >/dev/null
+	if [ $? -ne 0 ]; then
+      # Define the device label
+      parted '/dev/disk/azure/scsi1/lun{{ disk.lun }}' --script -- mklabel gpt
+      # Create the single partition
+      parted -a optimal '/dev/disk/azure/scsi1/lun{{ disk.lun }}' --script -- mkpart primary 0% 100%
+      # Wait 60 seconds until the partition is visible
+      for i in $(seq 1 60); do [ -b '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1' ] && break || $(sleep 1; continue); done
+      # Check partition existence
+      [ -b '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1' ] || exit 1
+      # Create the filesystem
+      mkfs -t {{ disk.fstype }} '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1'
+      # Create the mount point
+      mkdir -p '{{ disk.mountpoint }}'
+      # Add mount point to /etc/fstab
+      echo '/dev/disk/azure/scsi1/lun{{ disk.lun }}-part1 {{ disk.mountpoint }} {{ disk.fstype }} defaults 0 0' >> /etc/fstab
+      # Mount the mount point
+      mount '{{ disk.mountpoint }}'
+    fi
 {% endfor %}
+  EOF
 {% endif %}
 {% endfor %}
 }
