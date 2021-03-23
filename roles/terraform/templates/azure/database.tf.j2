@@ -71,5 +71,27 @@ resource "azurerm_{{ server.kind|lower }}_firewall_rule" "{{ firewall_rule.name 
 {% endfor %}
 {% endif %}
 
+{% if server.private_endpoints is defined %}
+{% for endpoint in server.private_endpoints %}
+# {{ endpoint.name }} ({{ endpoint.subnet_id }})
+resource "azurerm_private_endpoint" "{{ endpoint.name }}" {
+	name                = "{{ endpoint.name }}"
+	location            = azurerm_resource_group.{{ azure_resource_group_name }}.location
+	resource_group_name = azurerm_resource_group.{{ azure_resource_group_name }}.name
+	subnet_id           = azurerm_subnet.{{ endpoint.subnet_id }}.id
+
+	private_service_connection {
+		name                           = "{{ endpoint.name }}_psc"
+		private_connection_resource_id = azurerm_{{ server.kind|lower }}_server.{{ server.name }}.id
+		subresource_names              = [ "mariadbServer" ]
+		is_manual_connection           = false
+	}
+}
+output "{{ endpoint.name }}" {
+  value = azurerm_private_endpoint.{{ endpoint.name }}.private_service_connection[0].private_ip_address
+}
+{% endfor %}
+{% endif %}
+
 {% endfor %}
 {% endif %}

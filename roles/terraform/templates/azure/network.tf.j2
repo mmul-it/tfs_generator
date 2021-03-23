@@ -24,6 +24,9 @@ resource "azurerm_subnet" "{{ subnet.name }}" {
 {% if subnet.endpoints is defined %}
   service_endpoints    = [{% for endpoint in subnet.endpoints %}"{{ endpoint }}"{% if not loop.last %},{% endif %}{% endfor %}]
 {% endif %}
+{% if subnet.enforce_private_link_endpoint_network_policies is defined %}
+  enforce_private_link_endpoint_network_policies = {{ subnet.enforce_private_link_endpoint_network_policies }}
+{% endif %}
 }
 {% endfor -%}
 
