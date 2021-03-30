@@ -8,9 +8,12 @@
 # Associated with public IP {{ address.public_ip }}
 {% endif %}
 resource "azurerm_network_interface" "vm_nic{{ loop.index }}_{{ vm_basename }}" {
-  name                  = "nic{{ loop.index }}_{{ vm_basename }}"
-  resource_group_name   = azurerm_resource_group.{{ azure_resource_group_name }}.name
-  location              = azurerm_resource_group.{{ azure_resource_group_name }}.location
+  name                          = "nic{{ loop.index }}_{{ vm_basename }}"
+  resource_group_name           = azurerm_resource_group.{{ azure_resource_group_name }}.name
+  location                      = azurerm_resource_group.{{ azure_resource_group_name }}.location
+{% if hostvars[vm].enable_accelerated_networking is defined %}
+  enable_accelerated_networking = {{ hostvars[vm].enable_accelerated_networking }}
+{% endif %}
 
   ip_configuration {
     name                          = "ip1_{{ vm_basename }}"
