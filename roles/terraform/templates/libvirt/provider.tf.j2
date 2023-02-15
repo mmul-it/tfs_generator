@@ -1,0 +1,16 @@
+variable "libvirt_uri" {
+  description = "This is the libvirt daemon url, i.e. qemu:///system"
+}
+
+provider "libvirt" {
+  uri = var.libvirt_uri
+}
+
+terraform {
+  required_providers {
+    libvirt = {
+      source = "dmacvicar/libvirt"
+      version = "{{ terraform_libvirt_provider_version }}"
+    }
+  }
+}

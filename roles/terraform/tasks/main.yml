@@ -14,3 +14,8 @@
   include_tasks: azure.yml
   when:
     - terraform_cloud_provider == 'azure'
+
+- name: Deploy Libvirt environment
+  include_tasks: libvirt.yml
+  when:
+    - terraform_cloud_provider == 'libvirt'
