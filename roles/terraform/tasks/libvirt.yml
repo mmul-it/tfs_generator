@@ -31,6 +31,8 @@
   with_items:
     - 'provider'
     - 'networks'
+    - 'pools'
+    - 'volumes'
 
 - name: Deploy Libvirt virtual machines specific templates
   include_tasks: libvirt-vms.yml

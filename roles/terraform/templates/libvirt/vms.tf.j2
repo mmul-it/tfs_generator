@@ -34,8 +34,7 @@ resource "libvirt_domain" "{{ vm.name }}" {
 
 {% for disk in vm.disks %}
   disk {
-#    name              = "{{ disk.name }}"
-    volume_id            = "{{ disk.source }}"
+    volume_id            = libvirt_volume.{{ disk.volume_id }}.id
   }
 {% endfor %}
 
