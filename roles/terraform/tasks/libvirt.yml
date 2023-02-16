@@ -33,6 +33,16 @@
     - 'networks'
     - 'pools'
     - 'volumes'
+    - 'cloud_init'
+
+# Deploy the cloud_init.cfg, for details look at:
+# https://cloudinit.readthedocs.io/en/latest/reference/examples.html
+- name: Deploy Libvirt cloud_init.cfg file
+  copy:
+    content: |
+      #cloud-config
+      {{ terraform_libvirt_cloud_init_cfg | to_nice_yaml(indent=2, width=9999) }}
+    dest: "{{ terraform_config_dir }}/cloud_init.cfg"
 
 - name: Deploy Libvirt virtual machines specific templates
   include_tasks: libvirt-vms.yml

@@ -9,6 +9,10 @@ resource "libvirt_domain" "{{ vm.name }}" {
   memory                       = "{{ vm.memory }}"
   vcpu                         = "{{ vm.vcpu }}"
 
+{% if vm.cloudinit_disk is defined %}
+  cloudinit = libvirt_cloudinit_disk.{{ vm.cloudinit_disk }}.id
+{% endif %}
+
 {% for interface in vm.network_interfaces %}
   network_interface {
     network_id     = libvirt_network.{{ interface.network_id }}.id
