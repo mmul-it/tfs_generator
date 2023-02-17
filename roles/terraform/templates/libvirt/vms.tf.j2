@@ -42,6 +42,8 @@ resource "libvirt_domain" "{{ vm.name }}" {
   }
 {% endfor %}
 
+  depends_on = [{% for disk in vm.disks %}libvirt_volume.{{ disk.volume_id }}{%- if not loop.last -%}, {%- endif -%}{% endfor %}]
+
 {% for graphic in vm.graphics %}
   graphics {
     type        = "{{ graphic.type }}"

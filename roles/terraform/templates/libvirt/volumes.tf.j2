@@ -14,5 +14,7 @@ resource "libvirt_volume" "{{ volume.name }}" {
   size = "{{ volume.size }}"
 {% endif %}
   format = "{{ volume.format }}"
+
+  depends_on = [libvirt_pool.{{ volume.pool | default('default') }}]
 }
 {% endfor %}
