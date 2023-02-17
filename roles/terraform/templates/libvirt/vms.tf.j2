@@ -28,14 +28,6 @@ resource "libvirt_domain" "{{ vm.name }}" {
   }
 {% endfor %}
 
-{% for console in vm.consoles %}
-  console {
-    type        = "{{ console.type }}"
-    target_port = "{{ console.target_port }}"
-    target_type = "{{ console.target_type }}"
-  }
-{% endfor %}
-
 {% for disk in vm.disks %}
   disk {
     volume_id            = libvirt_volume.{{ disk.volume_id }}.id
@@ -44,6 +36,17 @@ resource "libvirt_domain" "{{ vm.name }}" {
 
   depends_on = [{% for disk in vm.disks %}libvirt_volume.{{ disk.volume_id }}{%- if not loop.last -%}, {%- endif -%}{% endfor %}]
 
+{% if vm.consoles is defined %}
+{% for console in vm.consoles %}
+  console {
+    type        = "{{ console.type }}"
+    target_port = "{{ console.target_port }}"
+    target_type = "{{ console.target_type }}"
+  }
+{% endfor %}
+{% endif %}
+
+{% if vm.graphics is defined %}
 {% for graphic in vm.graphics %}
   graphics {
     type        = "{{ graphic.type }}"
@@ -51,5 +54,6 @@ resource "libvirt_domain" "{{ vm.name }}" {
     autoport    = "{{ graphic.autoport }}"
   }
 {% endfor %}
+{% endif %}
 }
 {% endfor %}
