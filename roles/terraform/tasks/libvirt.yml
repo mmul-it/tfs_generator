@@ -41,8 +41,10 @@
   copy:
     content: |
       #cloud-config
-      {{ terraform_libvirt_cloud_init_cfg | to_nice_yaml(indent=2, width=9999) }}
-    dest: "{{ terraform_config_dir }}/cloud_init.cfg"
+      {{ item.cfg | to_nice_yaml(indent=2, width=9999) }}
+    dest: "{{ terraform_config_dir }}/cloud_init_{{ item.name }}.cfg"
+  with_items:
+    - "{{ terraform_libvirt_cloud_inits }}"
 
 - name: Deploy Libvirt virtual machines specific templates
   include_tasks: libvirt-vms.yml
