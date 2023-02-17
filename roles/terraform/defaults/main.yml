@@ -11,6 +11,8 @@ terraform_config_dir: 'terraform'
 # Delete existing resources before deploying new ones
 terraform_purge: false
 
+terraform_libvirt_provider_version: '0.7.1'
+
 # Which environment we're going to deploy
 terraform_cloud_provider: 'azure'
 
