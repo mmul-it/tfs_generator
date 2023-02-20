@@ -1,9 +1,28 @@
-# Virtual machine creation blocks for group terraform
+# Libvirt VMs and related volumes creation blocks
 {% for host in groups[terraform_group_name] %}
-
 {% set vm = hostvars[host].terraform_libvirt %}
 
-# {{ vm.name }}
+# VM {{ vm.name }} specific storage volumes
+{% for disk in vm.disks %}
+resource "libvirt_volume" "{{ disk.volume_id }}" {
+  name = "{{ disk.file }}"
+  pool = "{{ disk.pool | default('default') }}"
+{% if disk.base_volume_id is defined %}
+  base_volume_id = libvirt_volume.{{ disk.base_volume_id }}.id
+{% endif %}
+{% if disk.source is defined %}
+  source = "{{ disk.source }}"
+{% endif %}
+{% if volume.size is defined %}
+  size = "{{ disk.size }}"
+{% endif %}
+  format = "{{ disk.format | default('raw') }}"
+
+  depends_on = [libvirt_pool.{{ disk.pool | default('default') }}]
+}
+{% endfor %}
+
+# VM {{ vm.name }} specification
 resource "libvirt_domain" "{{ vm.name }}" {
   name                         = "{{ vm.name }}"
   memory                       = "{{ vm.memory }}"

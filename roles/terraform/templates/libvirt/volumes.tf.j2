@@ -1,7 +1,7 @@
-# Libvirt Storage Volumes
+# Libvirt general storage volumes
 {% for volume in terraform_libvirt_volumes %}
 
-resource "libvirt_volume" "{{ volume.name }}" {
+resource "libvirt_volume" "{{ volume.volume_id }}" {
   name = "{{ volume.file }}"
   pool = "{{ volume.pool | default('default') }}"
 {% if volume.base_volume_id is defined %}
