@@ -11,7 +11,7 @@ resource "libvirt_volume" "{{ volume.volume_id }}" {
   source = "{{ volume.source }}"
 {% endif %}
 {% if volume.size is defined %}
-  size = "{{ volume.size }}"
+  size = "{{ volume.size | human_to_bytes }}"
 {% endif %}
   format = "{{ volume.format | default('raw') }}"
 

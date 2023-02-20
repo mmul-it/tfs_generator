@@ -13,8 +13,8 @@ resource "libvirt_volume" "{{ disk.volume_id }}" {
 {% if disk.source is defined %}
   source = "{{ disk.source }}"
 {% endif %}
-{% if volume.size is defined %}
-  size = "{{ disk.size }}"
+{% if disk.size is defined %}
+  size = "{{ disk.size | human_to_bytes }}"
 {% endif %}
   format = "{{ disk.format | default('raw') }}"
 
