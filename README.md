@@ -43,11 +43,10 @@ To get specific configuration options look at the [Libvirt](Libvirt.md) or
 
 To test this role and generate a set of Terraform manifests, just use the
 [tests/terraform_tfs_generator.yml](tests/terraform_tfs_generator.yml)
-playbook passing the test inventory with `-i tests/inventory` and the libvirt
-defaults variable file with `-e @defaults/libvirt.yml`:
+playbook passing the test inventory with `-i tests/inventory`:
 
 ```console
-> ansible-playbook -i tests/inventory -e @defaults/libvirt.yml tests/terraform_tfs_generator.yml
+> ansible-playbook -i tests/inventory tests/terraform_tfs_generator.yml
 
 PLAY [Create Terraform manifests using terraform_tfs_generator Ansible role] ******************************************************************************
 

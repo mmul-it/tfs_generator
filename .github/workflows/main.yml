@@ -32,7 +32,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Ansible effective execution (should produce terraform/*.tf files)
-        run: ansible-playbook -i tests/inventory -e @defaults/libvirt.yml tests/terraform_tfs_generator.yml
+        run: ansible-playbook -i tests/inventory tests/terraform_tfs_generator.yml
       - name: Check terraform/*.tf files existence
         run: for tf in cloud_init.tf mylabvmsgroup.vms.tf networks.tf pools.tf
              provider.tf volumes.tf; do

@@ -118,7 +118,7 @@ Once you've compiled the inventory, you are ready to generate your Terraform
 resource files by launching:
 
 ```console
-> ansible-playbook -i tests/inventory -e @defaults/libvirt.yml tests/terraform_tfs_generator.yml
+> ansible-playbook -i tests/inventory tests/terraform_tfs_generator.yml
 
 PLAY [Create Terraform manifests using terraform_tfs_generator Ansible role] ******************************************************************************
 

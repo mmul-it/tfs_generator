@@ -13,3 +13,172 @@ terraform_purge: false
 
 # Which environment we're going to deploy
 terraform_cloud_provider: 'libvirt'
+
+# Libvirt defaults
+
+terraform_libvirt_provider_version: '0.7.1'
+
+# Libvirt connection uri
+terraform_libvirt_uri: 'qemu:///system'
+
+# Which groups of machines will be processed by the role
+terraform_libvirt_vms_groups:
+  - 'mylabvmsgroup'
+
+# Libvirt vNets configuration
+terraform_libvirt_networks:
+  - name: 'mylabnetwork'
+    mode: 'nat'
+    addresses:
+      - '192.168.199.0/24'
+
+# Libvirt pools
+terraform_libvirt_pools:
+  - name: 'mylabpool'
+    type: 'dir'
+    path: '/lab'
+
+# Libvirt volumes
+terraform_libvirt_volumes:
+  - volume_id: 'almalinux-8'
+    file: 'almalinux-8.qcow2'
+    pool: 'mylabpool'
+    source: 'https://repo.almalinux.org/almalinux/8/cloud/x86_64/images/AlmaLinux-8-GenericCloud-latest.x86_64.qcow2'
+    format: 'qcow2'
+
+# Libvirt cloud inits
+terraform_libvirt_cloud_inits:
+  - name: 'mylabcloudinit'
+    pool: 'mylabpool'
+    cfg:
+      ssh_pwauth: true
+      users:
+        - name: myuser
+          passwd: "{{ 'password' | password_hash('sha512') }}"
+          lock_passwd: false
+          sudo: ALL=(ALL) NOPASSWD:ALL
+
+# Azure defaults
+
+azure_provider_version: '2.40.0'
+
+# Azure cloud provider default variables
+
+# Azure access credentials
+azure_location: ''
+azure_subscription_id: ''
+azure_client_id: ''
+azure_client_secret: ''
+azure_tenant_id: ''
+
+# Azure storage blob for synchronized tfstate
+azure_tfstate_resource_group_name: "terraform-tfstate"
+azure_tfstate_resources:
+  - provider
+  - resource_group
+  - storage
+  - storage_container
+
+# Azure infrastructure details
+azure_resources:
+  - provider
+  - resource_group
+  - storage
+  - additional_storage
+  - network
+  - network_sec_group
+  - availability_set
+azure_vpn_resources:
+  - virtualnetwork_gw
+  - localnetwork_gw
+azure_resource_group_name: "azure-resource-group"
+azure_network_sec_group_name: 'network_sec_group'
+azure_storage_account_name: 'mystorageaccount'
+azure_public_ips: []
+azure_vnets:
+  - name: 'vnet'
+    addr_space: '192.168.0.0/24'
+    subnets:
+      - name: 'subnet_server'
+        prefix: '192.168.0.0/24'
+    gateway_subnet:
+      - name: 'subnet_gateway'
+        prefix: '192.168.0.248/29'
+        gw_name: 'vnet_gw'
+
+# Azure key vault
+azure_key_vault_enable: false
+azure_key_vault_name: 'myazurevault'
+azure_key_vault_keyname: 'myazurevaultkey'
+
+# Azure VM default variables
+azure_vm_admin_username: 'adminuser'
+azure_vm_admin_password: '4dm1n!'
+azure_vm_disable_password_authentication: true
+# Azure VM image to deploy. By default CentOS 7.7 are used, customize it in
+# the inventory group or host variables. The list of images is available via
+# 'az vm image list' command.
+azure_vm_image:
+  publisher: 'OpenLogic'
+  offer: 'CentOS'
+  sku: '7_9-gen2'
+  version: '7.9.2020111901'
+# Ansible groups to be included for Azure vms_<group-name>.tf file generation
+azure_vms_groups:
+  - 'all'
+
+# Azure MySQL/MariaDB Databases definition
+# (https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mysql_server)
+# (https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mariadb_server)
+# azure_database_servers:
+#   # Master database
+#   - name: 'master-name'
+#     kind: 'MariaDB'
+#     version: '10.2'
+#     # MySQL/MariaDB common parameters
+#     admin_user: 'admin'
+#     admin_password: 'password'
+#     sku: 'B_Gen5_2'
+#     storage_mb: 5120
+#     auto_grow: 'true'
+#     backup_retention: 7
+#     geo_redundant_backup: 'false'
+#     public_access: 'false'
+#     ssl: 'true'
+#     # For replicas
+#     create_mode: 'Default'
+#     creation_source_id: ''
+#     restore_point_in_time: ''
+#     # MySQL specific parameters
+#     encryption: 'true'
+#     ssl_minimal_tls: 'TLS1_2'
+#     # Databases definitions
+#     databases:
+#       - name: 'exampledb1'
+#         charset: 'utf8'
+#         collation: 'utf8_unicode_ci'
+#   # Slave database
+#   - name: 'master-name'
+#     kind: 'MariaDB'
+#     version: '10.2'
+#     # MySQL/MariaDB common parameters
+#     admin_user: 'admin'
+#     admin_password: 'password'
+#     sku: 'B_Gen5_2'
+#     storage_mb: 5120
+#     auto_grow: 'true'
+#     backup_retention: 7
+#     geo_redundant_backup: 'false'
+#     public_access: 'false'
+#     ssl: 'true'
+#     # For replicas
+#     create_mode: 'Default'
+#     creation_source_id: ''
+#     restore_point_in_time: ''
+#     # MySQL specific parameters
+#     encryption: 'true'
+#     ssl_minimal_tls: 'TLS1_2'
+#     # Databases definitions
+#     # For replicas
+#     create_mode: 'Replica'
+#     master: 'master-db'

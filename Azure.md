@@ -15,8 +15,7 @@ general variables and per-host variables:
 ### General variables
 
 At general level you will need to define all the details for the infrastructure
-resources that will be created (check
-`[defaults/azure.yml](defaults/azure.yml)`):
+resources that will be created (check [defaults/main.yml](defaults/main.yml)):
 
 Credentials:
 
