@@ -1,97 +1,100 @@
-# MMUL Ansible roles
+# Terraform role for Ansible
 
-This collection of roles can be used to implement various cloud native
-solutions:
+## Azure
+You can use this role to generate Terraform resource files necessary to
+provision your infrastructure on Azure. Also, this role can configure Azure
+for you in order to keeps Terraform state online and shared between multiple
+users.
 
-* [Kubernetes](roles/kubernetes): a Kubernetes cluster;
-* [Terraform](roles/terraform): based on the passed inventory, it generates
-  all the Terraform files needed to implement a cloud (today just Azure)
-  datacenter;
-* [Azure](roles/azure): automate tasks on Azure;
-* [Graylog](roles/graylog-server): a clustered Graylog/MongoDB/Elasticsearch
-  solution;
-* [MaxScale](roles/maxscale): a MariaDB MaxScale instance (suitable also for
-  Azure MaxScale);
-* [Redis](roles/redis): a Redis cluster implementation;
+### Prerequisites
+In order to work with Azure, especially if you need to store the Terraform
+state file (tfstate) on your Azure account, you need to perform some actions
+before running terraform commands.
 
-A specific README will be (soon, if not present) available for each role.
+- Create a virtual environment: to don't overlap with other installations on
+  your computer, it's best to setup a Python virtual environment. To do this
+  you need at least python3 and pip installed. Then, go to the repository clone
+  root directory and create the environment (if you prefix the name with venv,
+  you'll have already the proper exclusion in your .gitignore file):
 
-## Using the roles
+      $ python3 -m venv --system-site-packages venv-terraform
+      ...
+      $ source venv-terraform/bin/activate
+      (venv-terraform)$
 
-For each of the role there is an Ansible plugin that will invoke everything that is needed to accomplish its scope.
+- Install dependencies: once in your environment, you need some dependencies
+  (like ansible and azure-cli). We already provides a 'requirements.txt' file
+  with all the dependencies, so just run:
 
-### Preparing the environment
+      (venv-terraform)$ pip install -r requirements.txt
+      ...
 
-The best way to run everything is by using Python virtual environments and Ansible Collections.
+  and you're ready to go.
 
-First of all you need to clone this repository:
+- Login with Azure: this is needed only if you store the Terraform state file
+  (tfstate) on an Azure Storage Container. This best practice will be very
+  usefull when multiple people works on the same Terraform-provided Azure
+  infrastructure, but require to log in into Azure via the azure-cli (already
+  installed in your environment in the previous step). So, in your environment
+  simply execute this command:
 
-```
-user@lab ~ # git clone https://github.com/mmul-it/ansible
-Cloning into 'ansible'...
-remote: Enumerating objects: 2572, done.
-remote: Counting objects: 100% (449/449), done.
-remote: Compressing objects: 100% (199/199), done.
-remote: Total 2572 (delta 269), reused 363 (delta 222), pack-reused 2123
-Receiving objects: 100% (2572/2572), 9.10 MiB | 8.77 MiB/s, done.
-Resolving deltas: 100% (1345/1345), done.
-```
+      (venv-terraform)$ az login
+      To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code XXXXXXXXX to authenticate.
 
-Then you will create your Python virtual environment:
+  Open your browser in the az provided address then:
 
-```
-user@lab ~ # python3 -m virtualenv ansible-env
-Running virtualenv with interpreter /usr/bin/python2
-New python executable in /root/ansible-env/bin/python2
-Also creating executable in /root/ansible-env/bin/python
-Installing setuptools, pkg_resources, pip, wheel...done.
+    - Enter the code you found in the command output
+    - Enter your account Email
+    - Enter your account Password
+    - If two-factor authentication was enabled on your account, authorize the
+      login
 
-# source ansible-env/bin/activate
-(ansible-env) user@lab ~ #
+  After few seconds the az command on your computer will output a json (which
+  contains your account list).
 
-(ansible-env) user@lab ~ # python3 -m pip install --upgrade pip
-```
+  NOTE 1: if you have configured your login as a Service Principal, you need
+  also to login with the user, tenant and certificate provided by your account
+  administrator. Once you obtained this, execute:
 
-And then you'll be ready to install the Python requirements:
+      (venv-terraform)$ az login --service-principal -u <user URL> -p <certificate pem> --tenant <tenant id>
+  
+  NOTE 2: with Terraform versions >=0.13.x and hashicorp/azurerm provider >=
+  2.5.x the login as Service Principal isn't supported anymore. If you use
+  those more recent versions (or use the defaults provided by the role) you can
+  skip the login as a Service Principal. Everything still works as expected.
 
-```
-(ansible-env) user@lab ~ # pip3 install -r ansible/requirements.txt 
-Requirement already satisfied: ansible in /usr/lib/python3.6/site-packages (from -r ansible/requirements.txt (line 1)) (2.10.7)
-Requirement already satisfied: ansible-vault in /usr/lib/python3.6/site-packages (from -r ansible/requirements.txt (line 2)) (1.2.0)
-Requirement already satisfied: azure-cli in /usr/lib/python3.6/site-packages (from -r ansible/requirements.txt (line 3)) (2.25.0)
-...
-...
-Installing collected packages: rsa, cachetools, google-auth, kubernetes
-Successfully installed cachetools-4.2.4 google-auth-2.13.0 kubernetes-24.2.0 rsa-4.9
-```
+  You are now ready to go with Terraform state on Azure Storage Container
 
-And finally the Ansible collections:
+### Generate Terraform config files
+Once you've compiled the inventory (looks at the defaults/main.yml file for the
+available variables), you are ready to generate your Terraform resource files.
+Just launch:
 
-```
-(ansible-env) user@lab ~ # ansible-galaxy install -r ansible/collections/requirements.yml
-Starting galaxy collection install process
-Process install dependency map
-...
-...
-kubernetes.core (2.3.2) was installed successfully
-```
+    (venv-terraform)$ ansible-playbook -v -i inventory/myenv/hosts terraform.yaml
+    ...
 
-Now you should be ready to use `ansible-playbook` to execute the desired playbooks.
+### Terraform directory structure
+Ansible will generate a directory structure based on the *terraform_config_dir*
+variable. Here, you can find this subdirectories:
 
-### Launching the playbooks
+    terraform_config_dir/
+    |
+    |- bin/          (contains the Terraform binary)
+    |- azure-init/   (used to initialize Azure for keeping the tfstate file)
+    |- azure/        (this contains your infrastructure resources)
 
-Supposing that you want to install a Kubernetes environment, you'll need to pass an inventory (we will rely on `lab`) like this:
+### Prepare Azure for keeping the tfstate file
+If it's the first time you use Terraform to provision Azure resources, and you
+choosed to keep the Terraform tfstate on Azure, you need to prepare Azure to
+store the file. In your ${terraform_config_dir}/azure-init/ directory you've
+all the Terraform resources needed to do this.
 
-```
-$ ansible-playbook \
--i $HOME/ansible/inventory/lab \
-$HOME/ansible/kubernetes.yml
-```
+    (venv-terraform)$ terraform/myenv/bin/terraform init terraform/myenv/azure-init
+    ...
+    (venv-terraform)$ terraform/myenv/bin/terraform plan terraform/myenv/azure-init
+    ...
+    (venv-terraform)$ terraform/myenv/bin/terraform apply terraform/myenv/azure-init
+    ...
 
-## Authors
-
-This project was created and is maintained by [Raoul Scarazzini](https://github.com/rascasoft) and has contributions from other users. Thanks to everyone who will contribute in the future, you're more than welcome!
-
-## License
-
-MIT License
+If you starts working on an already managed infrastructure, probably the
+tfstate file will be already on Azure, so you can skip this step.

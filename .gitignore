@@ -1,5 +1,3 @@
-inventory/*
-!inventory/lab
 /terraform*
 /.terraform*
 venv*
