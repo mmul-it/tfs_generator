@@ -36,5 +36,6 @@ jobs:
       - name: Check terraform/*.tf files existence
         run: for tf in cloud_init.tf mylabvmsgroup.vms.tf networks.tf pools.tf
              provider.tf volumes.tf; do
-              test -f tests/terraform/libvirt/${tf};
+              echo "Checking tests/terraform/${tf}";
+              test -f tests/terraform/${tf};
              done

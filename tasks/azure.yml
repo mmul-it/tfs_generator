@@ -1,19 +1,19 @@
 ---
 
 - name: Create Azure private output directory
-  file:
+  ansible.builtin.file:
     path: "{{ terraform_config_dir }}/azure-private"
     state: directory
-    mode: 0700
+    mode: '0700'
 
 - name: Deploy Azure private variables source templates
-  template:
+  ansible.builtin.template:
     src: "azure/variables.source.j2"
     dest: "{{ terraform_config_dir }}/azure-private/variables.source"
-    mode: 0600
+    mode: '0600'
 
 - name: Generate ssh RSA public/private key
-  command:
+  ansible.builtin.command:
     cmd: ssh-keygen -t rsa -N '' -f azure_id_rsa
     chdir: "{{ terraform_config_dir }}/azure-private"
     creates: azure_id_rsa.pub
@@ -22,28 +22,31 @@
     - azure_vm_disable_password_authentication | bool
 
 - name: Set the ssh RSA public key fact
-  set_fact:
+  ansible.builtin.set_fact:
     azure_vm_admin_ssh_public_key_file: "{{ terraform_config_dir }}/azure-private/azure_id_rsa.pub"
   when:
     - not azure_vm_admin_ssh_public_key_file is defined
 
-- block:
+- name: Storage container azure-init definition
+  block:
     - name: Purge azure-init output directory
-      file:
+      ansible.builtin.file:
         path: "{{ terraform_config_dir }}/azure-init"
         state: absent
       when:
         - terraform_purge | bool
 
     - name: Create azure-init output directory
-      file:
+      ansible.builtin.file:
         path: "{{ terraform_config_dir }}/azure-init"
         state: directory
+        mode: '0750'
 
     - name: Deploy resources templates
-      template:
+      ansible.builtin.template:
         src: "azure/{{ item }}.tf.j2"
         dest: "{{ terraform_config_dir }}/azure-init/{{ item }}.tf"
+        mode: '0640'
       with_items:
         - "{{ azure_tfstate_resources }}"
       vars:
@@ -55,54 +58,59 @@
     - terraform_tfstate_on_azure_storage_container is defined
 
 - name: Purge azure output directory
-  file:
+  ansible.builtin.file:
     path: "{{ terraform_config_dir }}/azure"
     state: absent
   when:
     - terraform_purge | bool
 
 - name: Create Azure output directory
-  file:
+  ansible.builtin.file:
     path: "{{ terraform_config_dir }}/azure"
     state: directory
+    mode: '0750'
 
 - name: Deploy Azure general resources templates
-  template:
+  ansible.builtin.template:
     src: "azure/{{ item }}.tf.j2"
     dest: "{{ terraform_config_dir }}/azure/{{ item }}.tf"
+    mode: '0640'
   with_items:
     - "{{ azure_resources }}"
 
 - name: Deploy Azure VPN resources templates
-  template:
+  ansible.builtin.template:
     src: "azure/{{ item }}.tf.j2"
     dest: "{{ terraform_config_dir }}/azure/{{ item }}.tf"
+    mode: '0640'
   with_items:
     - "{{ azure_vpn_resources }}"
 
 - name: Deploy Azure key vault template
-  template:
+  ansible.builtin.template:
     src: "azure/key_vault.tf.j2"
     dest: "{{ terraform_config_dir }}/azure/key_vault.tf"
+    mode: '0640'
   when:
     - azure_key_vault_enable | bool
 
 - name: Deploy Azure database template
-  template:
+  ansible.builtin.template:
     src: "azure/database.tf.j2"
     dest: "{{ terraform_config_dir }}/azure/database.tf"
+    mode: '0640'
   when:
     - azure_database_servers is defined
 
 - name: Deploy Azure virtual machines specific templates
-  include_tasks: azure-vms.yml
+  ansible.builtin.include_tasks: azure-vms.yml
   with_items:
     - "{{ azure_vms_groups }}"
   loop_control:
     loop_var: group_name
 
 - name: Display a reminder for sourcing variables
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Remember to import the variable file in order to tell Terraform which"
       - "subscription use during the run. Before run Terraform, please execute:"
