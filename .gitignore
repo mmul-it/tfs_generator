@@ -5,3 +5,4 @@ venv*
 *.swo
 collections/*
 !collections/requirements.yml
+/tests/terraform*

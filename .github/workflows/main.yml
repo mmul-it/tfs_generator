@@ -1,0 +1,40 @@
+---
+
+name: Linter and test the project                                                        
+                                                                                
+env:
+  ANSIBLE_INVENTORY_UNPARSED_WARNING: 'False'
+  ANSIBLE_LOCALHOST_WARNING: 'False'
+
+on: [push]  
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/mmul/kpa
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: YAML check
+        run: yamllint tests/terraform_tfs_generator.yml
+      - name: Ansible Linter check
+        run: ansible-lint tests/terraform_tfs_generator.yml
+      - name: Ansible syntax check
+        run: ansible-playbook --syntax-check tests/terraform_tfs_generator.yml
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    container:
+      image: quay.io/mmul/kpa
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Ansible effective execution (should produce terraform/*.tf files)
+        run: ansible-playbook -i tests/inventory -e @defaults/libvirt.yml tests/terraform_tfs_generator.yml
+      - name: Check terraform/*.tf files existence
+        run: for tf in cloud_init.tf mylabvmsgroup.vms.tf networks.tf pools.tf
+             provider.tf volumes.tf; do
+              test -f tests/terraform/libvirt/${tf};
+             done

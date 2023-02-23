@@ -1,0 +1,17 @@
+---
+
+terraform_libvirt:
+  name: myvm-2
+  memory: 1024
+  vcpu: 1
+  cloudinit_disk: 'mylabcloudinit'
+  network_interfaces:
+    - network_id: mylabnetwork
+      addresses: ["192.168.199.32"]
+  disks:
+    - volume_id: myvm-2-qcow2
+      file: 'myvm-2.qcow2'
+      format: 'qcow2'
+      pool: 'mylabpool'
+      size: '10 GB'
+      base_volume_id: 'almalinux-8'
