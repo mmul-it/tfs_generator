@@ -222,7 +222,7 @@ before running terraform commands.
   (like ansible and azure-cli). We already provides a 'requirements.txt' file
   with all the dependencies, so just run:
 
-  ```
+  ```console
   (venv-terraform)$ pip install -r requirements.txt
   ...
   ```
@@ -236,7 +236,7 @@ before running terraform commands.
   installed in your environment in the previous step). So, in your environment
   simply execute this command:
 
-  ```
+  ```console
   (venv-terraform)$ az login
   To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code XXXXXXXXX to authenticate.
   ```
@@ -256,7 +256,7 @@ before running terraform commands.
   also to login with the user, tenant and certificate provided by your account
   administrator. Once you obtained this, execute:
 
-  ```
+  ```console
   (venv-terraform)$ az login --service-principal -u <user URL> -p <certificate pem> --tenant <tenant id>
   ```
 

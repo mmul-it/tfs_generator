@@ -48,7 +48,7 @@ terraform_libvirt_networks:
 
 And finally pools, volumes and cloud-init specific configurations:
 
-```
+```yaml
 # Libvirt pools
 terraform_libvirt_pools:
   - name: 'mylabpool'
@@ -232,7 +232,7 @@ Apply complete! Resources: 8 added, 0 changed, 0 destroyed.
 
 In short the VMs should be available:
 
-```
+```console
 > ssh myuser@192.168.199.31 uptime
 Warning: Permanently added '192.168.199.31' (ED25519) to the list of known hosts.
 myuser@192.168.199.31's password:

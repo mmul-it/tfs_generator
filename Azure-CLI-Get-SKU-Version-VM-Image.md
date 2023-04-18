@@ -5,8 +5,9 @@ from the location.
 
 * First, you want to know which publishers are available in the zone (i.e.
   ukwest):
-  ```
-  az vm image list-publishers --location ukwest --output table
+
+  ```console
+  > az vm image list-publishers --location ukwest --output table
   Location    Name
   ----------  ----------------------------------------------------------------------------------
   ukwest      128technology
@@ -25,10 +26,12 @@ from the location.
   ukwest      a10networks
   ...
   ```
+
 * Then you'll need to get all the offered images from the specific publisher
   (i.e. OpenLogic):
-  ```
-  az vm image list-offers --location ukwest --publisher OpenLogic --output table
+
+  ```console
+  > az vm image list-offers --location ukwest --publisher OpenLogic --output table
   Location    Name
   ----------  -------------------------
   ukwest      CentOS
@@ -39,9 +42,11 @@ from the location.
   ukwest      centos_corevm_test-200331
   ukwest      centos_corevm_test-200408
   ```
+
 * At this point you'll want to know the available skus for the offered image
   (i.e. CentOS):
-  ```
+
+  ```console
   az vm image list-skus --location ukwest --publisher OpenLogic --offer CentOS --output table
   Location    Name
   ----------  --------
@@ -54,9 +59,11 @@ from the location.
   ukwest      8_3
   ukwest      8_3-gen2
   ```
+
 * Finally, you'll get the specific version depending on the sku you selected
   (i.e. 7_9-gen2):
-  ```
+
+  ```console
   az vm image list --location ukwest --publisher OpenLogic --offer CentOS --sku 7_9-gen2 --all  --output table
   Offer    Publisher    Sku       Urn                                       Version
   -------  -----------  --------  ----------------------------------------  --------------
