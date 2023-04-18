@@ -1,4 +1,4 @@
-# Azure provider with Terraform tf manifests generator role for Ansible
+# Generate Terraform manifests for Azure provider
 
 <img src="https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/azure-blue" alt="Azure" width="128px">
 

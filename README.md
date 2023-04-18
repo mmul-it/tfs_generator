@@ -1,4 +1,4 @@
-# Terraform tf manifests generator role for Ansible
+# Terraform manifests generator Ansible role
 
 This role can be used to install Terraform binary and deploy Terraform manifest
 files (`.tf`) starting from an Ansible inventory, to create a fully atomated and

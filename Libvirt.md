@@ -1,4 +1,4 @@
-# Libvirt provider with Terraform tf manifests generator role for Ansible
+# Generate Terraform manifests for Libvirt provider
 
 <img src="https://libvirt.org/logos/logo-square-128.png" alt="Libvirt" width="128px">
 
