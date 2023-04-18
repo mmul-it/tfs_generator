@@ -1,5 +1,7 @@
 # Azure provider with Terraform tf manifests generator role for Ansible
 
+<img src="https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/azure-blue" alt="Azure" width="128px">
+
 ## Variables
 
 After defining the Azure provider and its version:

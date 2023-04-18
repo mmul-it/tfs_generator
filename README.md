@@ -37,7 +37,10 @@ terraform_cloud_provider: 'libvirt'
 ```
 
 To get specific configuration options look at the [Libvirt](Libvirt.md) or
-[Azure](Azure.md) page.
+[Azure](Azure.md) page:
+
+[<img src="https://libvirt.org/logos/logo-square-128.png" alt="Libvirt" width="128px">](Libvirt.md)
+[<img src="https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/azure-blue" alt="Azure" width="128px">](Azure.md)
 
 ## Example playbook
 

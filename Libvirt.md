@@ -1,5 +1,7 @@
 # Libvirt provider with Terraform tf manifests generator role for Ansible
 
+<img src="https://libvirt.org/logos/logo-square-128.png" alt="Libvirt" width="128px">
+
 ## Variables
 
 After defining the Libvirt provider and its version:
