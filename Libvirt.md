@@ -35,7 +35,8 @@ terraform_libvirt_vms_groups:
   - 'mylabvmsgroup'
 ```
 
-Networks:
+Networks (note that if you don't want the network to start automatically you can
+set the `autostart` option to `false`):
 
 ```yaml
 # Libvirt vNets configuration
