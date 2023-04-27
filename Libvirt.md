@@ -114,6 +114,25 @@ Note the value of the `cpu_mode` variable that makes this VM able to do nested
 virtualization, because of the `host-passthrough` value. Omitting the parameter
 will keep the default CPU mode.
 
+Other options are supported for the specific virtual machine, it is possible to
+specify one or more terminal consoles, by adding:
+
+```yaml
+  consoles:
+    - type: 'pty'
+      target_type: 'serial'
+      target_port: '0'
+```
+
+or even one or more graphics, by adding:
+
+```yaml
+  graphics:
+    - type: 'vnc'
+      listen_type: 'address'
+      autoport: 'true'
+```
+
 ## Using Terraform binary to deploy the Libvirt infrastructure
 
 You can use this role to generate Terraform resource files necessary to
