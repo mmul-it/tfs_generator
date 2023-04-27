@@ -93,6 +93,7 @@ terraform_libvirt:
   name: myvm-1
   memory: 1024
   vcpu: 1
+  cpu_mode: 'host-passthrough'
   cloudinit_disk: 'mylabcloudinit'
   network_interfaces:
     - network_id: mylabnetwork
@@ -107,7 +108,11 @@ terraform_libvirt:
 ```
 
 This file will be used by the role to generate the Terraform manifest and could
-be also used by other ansible roles to act over the created Azure VM.
+be also used by other ansible roles to act over the created Libvirt VM.
+
+Note the value of the `cpu_mode` variable that makes this VM able to do nested
+virtualization, because of the `host-passthrough` value. Omitting the parameter
+will keep the default CPU mode.
 
 ## Using Terraform binary to deploy the Libvirt infrastructure
 
