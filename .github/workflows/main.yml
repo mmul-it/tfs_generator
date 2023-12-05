@@ -39,3 +39,15 @@ jobs:
               echo "Checking tests/terraform/${tf}";
               test -f tests/terraform/${tf};
              done
+
+  trigger_galaxy_import:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Release Ansible Role to Galaxy
+        uses: hspaans/ansible-galaxy-action@v1
+        with:
+          api_key: ${{ secrets.GALAXY_API_KEY }}
