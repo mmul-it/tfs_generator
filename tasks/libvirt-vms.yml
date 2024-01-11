@@ -6,4 +6,4 @@
     dest: "{{ item.dest }}"
     mode: '0640'
   with_items:
-    - { src: "libvirt/vms.tf.j2", dest: "{{ terraform_config_dir }}/{{ terraform_group_name }}.vms.tf" }
+    - {src: "libvirt/vms.tf.j2", dest: "{{ terraform_config_dir }}/{{ terraform_group_name }}.vms.tf"}
