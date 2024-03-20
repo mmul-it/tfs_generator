@@ -1,4 +1,4 @@
-# Tf manifests generator Ansible role
+# ![TFs generator Ansible Role](./images/tfs_generator-github-header.png)
 
 This role can be used to install tf tool binary and deploy tf manifest files
 (`.tf`) starting from an Ansible inventory, to create a fully atomated and
