@@ -23,8 +23,7 @@
 
     - name: Download and extract terraform binary
       ansible.builtin.unarchive:
-        src: "https://releases.hashicorp.com/terraform/{{ terraform_binary_version }}/\
-              terraform_{{ terraform_binary_version }}_{{ terraform_binary_platform }}.zip"
+        src: "{{ terraform_binary_url }}"
         dest: "{{ terraform_config_dir }}/bin"
         remote_src: true
   when:
