@@ -1,6 +1,6 @@
 ---
 
-terraform_libvirt:
+tf_libvirt:
   name: myvm-2
   memory: 1024
   vcpu: 1

@@ -1,9 +1,9 @@
 ---
 
-- name: "Deploy VMS templates for group {{ terraform_group_name }}"
+- name: "Deploy VMS templates for group {{ tf_group_name }}"
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     mode: '0640'
   with_items:
-    - {src: "libvirt/vms.tf.j2", dest: "{{ terraform_config_dir }}/{{ terraform_group_name }}.vms.tf"}
+    - {src: "libvirt/vms.tf.j2", dest: "{{ tf_config_dir }}/{{ tf_group_name }}.vms.tf"}

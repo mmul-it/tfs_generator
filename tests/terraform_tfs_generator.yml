@@ -1,6 +1,0 @@
----
-
-- name: Create Terraform manifests using terraform_tfs_generator Ansible role
-  hosts: localhost
-  roles:
-    - role: ../..

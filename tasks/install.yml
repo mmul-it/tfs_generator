@@ -1,12 +1,12 @@
 ---
 
-- name: Check if terraform binary is available
-  ansible.builtin.command: "{{ terraform_config_dir }}/bin/terraform -version"
-  register: terraform_binary_check
+- name: Check if tf binary is available
+  ansible.builtin.command: "{{ tf_config_dir }}/bin/{{ tf_cmd }} -version"
+  register: tf_binary_check
   changed_when: false
   failed_when: false
 
-- name: Get terraform binary
+- name: Get tf binary
   block:
     - name: Install unzip
       ansible.builtin.package:
@@ -15,17 +15,18 @@
       become: true
       when: ansible_os_family != "Darwin"
 
-    - name: "Create directory for terraform binary under {{ terraform_config_dir }}"
+    - name: "Create directory for tf binary under {{ tf_config_dir }}"
       ansible.builtin.file:
-        path: "{{ terraform_config_dir }}/bin"
+        path: "{{ tf_config_dir }}/bin"
         state: directory
         mode: '0750'
 
-    - name: Download and extract terraform binary
+    - name: Download and extract tf binary
       ansible.builtin.unarchive:
-        src: "{{ terraform_binary_url }}"
-        dest: "{{ terraform_config_dir }}/bin"
+        src: "{{ tf_binary_url }}"
+        dest: "{{ tf_config_dir }}/bin"
         remote_src: true
   when:
-    - terraform_binary_check.rc != 0 or
-      terraform_binary_check.stdout.splitlines()[0] != 'Terraform v' + terraform_binary_version
+    - tf_binary_check.rc != 0 or
+      not ( tf_binary_check.stdout | regex_search('Terraform v' + tf_binary_version) or
+            tf_binary_check.stdout | regex_search('OpenTofu v' + tf_binary_version) )

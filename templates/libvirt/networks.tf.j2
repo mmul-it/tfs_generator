@@ -1,9 +1,9 @@
 # Subnet that will be created:
-{% for network in terraform_libvirt_networks %}
+{% for network in tf_libvirt_networks %}
 # {{ network.name }} {{ network.mode }} {% for address in network.addresses %}"{{ address }}"{%- if not loop.last -%}, {%- endif -%}{% endfor %}
 {% endfor %}
 
-{% for network in terraform_libvirt_networks %}
+{% for network in tf_libvirt_networks %}
 resource "libvirt_network" "{{ network.name }}" {
     name      = "{{ network.name }}"
     mode      = "{{ network.mode }}"

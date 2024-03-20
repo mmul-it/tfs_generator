@@ -1,4 +1,4 @@
-# Generate Terraform manifests for Azure provider
+# Generate tf manifests for Azure provider
 
 <img src="https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/azure-blue" alt="Azure" width="128px">
 
@@ -7,7 +7,7 @@
 After defining the Azure provider and its version:
 
 ```yaml
-terraform_cloud_provider: 'azure'
+tf_cloud_provider: 'azure'
 azure_provider_version: '2.40.0'
 ```
 
@@ -212,10 +212,10 @@ before running terraform commands.
   you'll have already the proper exclusion in your .gitignore file):
 
   ```console
-  $ python3 -m venv --system-site-packages venv-terraform
+  $ python3 -m venv --system-site-packages venv-tf
   ...
-  $ source venv-terraform/bin/activate
-  (venv-terraform)$
+  $ source venv-tf/bin/activate
+  (venv-tf)$
   ```
 
 - Install dependencies: once in your environment, you need some dependencies
@@ -223,7 +223,7 @@ before running terraform commands.
   with all the dependencies, so just run:
 
   ```console
-  (venv-terraform)$ pip install -r requirements.txt
+  (venv-tf)$ pip install -r requirements.txt
   ...
   ```
 
@@ -237,7 +237,7 @@ before running terraform commands.
   simply execute this command:
 
   ```console
-  (venv-terraform)$ az login
+  (venv-tf)$ az login
   To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code XXXXXXXXX to authenticate.
   ```
 
@@ -257,7 +257,7 @@ before running terraform commands.
   administrator. Once you obtained this, execute:
 
   ```console
-  (venv-terraform)$ az login --service-principal -u <user URL> -p <certificate pem> --tenant <tenant id>
+  (venv-tf)$ az login --service-principal -u <user URL> -p <certificate pem> --tenant <tenant id>
   ```
 
   NOTE 2: with Terraform versions >=0.13.x and hashicorp/azurerm provider >=
@@ -273,17 +273,17 @@ Once you've compiled the inventory, you are ready to generate your Terraform
 resource files by launching:
 
 ```console
-(venv-terraform)$ ansible-playbook -v -i inventory/myenv/hosts tests/terraform_tfs_generator.yaml
+(venv-tf)$ ansible-playbook -v -i inventory/myenv/hosts tests/tfs_generator.yaml
 ...
 ```
 
 ### Terraform directory structure
 
-Ansible will generate a directory structure based on the *terraform_config_dir*
+Ansible will generate a directory structure based on the *tf_config_dir*
 variable. Here, you can find this subdirectories:
 
 ```console
-terraform_config_dir/
+tf_config_dir/
 |
 |- bin/          (contains the Terraform binary)
 |- azure-init/   (used to initialize Azure for keeping the tfstate file)
@@ -292,17 +292,17 @@ terraform_config_dir/
 
 ### Prepare Azure for keeping the tfstate file
 
-If it's the first time you use Terraform to provision Azure resources, and you
-choosed to keep the Terraform tfstate on Azure, you need to prepare Azure to
-store the file. In your ${terraform_config_dir}/azure-init/ directory you've
-all the Terraform resources needed to do this.
+If it's the first time you use tf cmd to provision Azure resources, and you
+choosed to keep the tfstate file on Azure, you need to prepare Azure to
+store the file. In your ${tf_config_dir}/azure-init/ directory you've
+all the tf resources needed to do this.
 
 ```console
-(venv-terraform)$ terraform/myenv/bin/terraform init terraform/myenv/azure-init
+(venv-tf)$ tf/myenv/bin/terraform init tf/myenv/azure-init
 ...
-(venv-terraform)$ terraform/myenv/bin/terraform plan terraform/myenv/azure-init
+(venv-tf)$ tf/myenv/bin/terraform plan tf/myenv/azure-init
 ...
-(venv-terraform)$ terraform/myenv/bin/terraform apply terraform/myenv/azure-init
+(venv-tf)$ tf/myenv/bin/terraform apply tf/myenv/azure-init
 ...
 ```
 
@@ -312,13 +312,13 @@ file will be already on Azure, so you can skip this step.
 ### Create the Azure environment
 
 Creating the environment will be a matter of just initializing and using the
-`terraform/myenv/azure` manifests, as follows:
+`tf/myenv/azure` manifests, as follows:
 
 ```console
-(venv-terraform)$ terraform/myenv/bin/terraform init terraform/myenv/azure
+(venv-tf)$ tf/myenv/bin/terraform init tf/myenv/azure
 ...
-(venv-terraform)$ terraform/myenv/bin/terraform plan terraform/myenv/azure
+(venv-tf)$ tf/myenv/bin/terraform plan tf/myenv/azure
 ...
-(venv-terraform)$ terraform/myenv/bin/terraform apply terraform/myenv/azure
+(venv-tf)$ tf/myenv/bin/terraform apply tf/myenv/azure
 ...
 ```

@@ -1,6 +1,6 @@
 # Libvirt VMs and related volumes creation blocks
-{% for host in groups[terraform_group_name] %}
-{% set vm = hostvars[host].terraform_libvirt %}
+{% for host in groups[tf_group_name] %}
+{% set vm = hostvars[host].tf_libvirt %}
 
 # VM {{ vm.name }} specific storage volumes
 {% for disk in vm.disks %}

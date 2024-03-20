@@ -1,22 +1,22 @@
 ---
 
-- name: Install terraform locally
+- name: Install tf cmd locally
   ansible.builtin.include_tasks: install.yml
   when:
-    - terraform_binary_install | bool
+    - tf_binary_install | bool
 
-- name: "Create local configurations directory {{ terraform_config_dir }}"
+- name: "Create local configurations directory {{ tf_config_dir }}"
   ansible.builtin.file:
-    path: "{{ terraform_config_dir }}"
+    path: "{{ tf_config_dir }}"
     state: directory
     mode: '0750'
 
 - name: Deploy Azure environment
   ansible.builtin.include_tasks: azure.yml
   when:
-    - terraform_cloud_provider == 'azure'
+    - tf_cloud_provider == 'azure'
 
 - name: Deploy Libvirt environment
   ansible.builtin.include_tasks: libvirt.yml
   when:
-    - terraform_cloud_provider == 'libvirt'
+    - tf_cloud_provider == 'libvirt'

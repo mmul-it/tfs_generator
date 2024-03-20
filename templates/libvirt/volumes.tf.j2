@@ -1,5 +1,5 @@
 # Libvirt general storage volumes
-{% for volume in terraform_libvirt_volumes %}
+{% for volume in tf_libvirt_volumes %}
 
 resource "libvirt_volume" "{{ volume.volume_id }}" {
   name = "{{ volume.file }}"

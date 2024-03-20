@@ -1,47 +1,50 @@
 ---
 
-# Install terraform
-terraform_binary_install: true
-terraform_binary_version: '0.14.2'
-terraform_binary_platform: 'linux_amd64'
-terraform_binary_url: "https://releases.hashicorp.com/terraform/{{ terraform_binary_version }}/\
-                       terraform_{{ terraform_binary_version }}_{{ terraform_binary_platform }}.zip"
+# Install tf cmd
+tf_binary_install: true
+tf_binary_version: '0.14.2'
+tf_binary_platform: 'linux_amd64'
+tf_binary_url: "https://releases.hashicorp.com/terraform/{{ tf_binary_version }}/\
+                terraform_{{ tf_binary_version }}_{{ tf_binary_platform }}.zip"
 
-# Where to deploy terraform resource files
-terraform_config_dir: 'terraform'
+# Name of the command used to generate tf files
+tf_cmd: 'terraform'
+
+# Where to deploy tf resource files
+tf_config_dir: 'tfs'
 
 # Delete existing resources before deploying new ones
-terraform_purge: false
+tf_purge: false
 
 # Which environment we're going to deploy
-terraform_cloud_provider: 'libvirt'
+tf_cloud_provider: 'libvirt'
 
 # Libvirt defaults
 
-terraform_libvirt_provider_version: '0.7.1'
+tf_libvirt_provider_version: '0.7.1'
 
 # Libvirt connection uri
-terraform_libvirt_uri: 'qemu:///system'
+tf_libvirt_uri: 'qemu:///system'
 
 # Which groups of machines will be processed by the role
-terraform_libvirt_vms_groups:
+tf_libvirt_vms_groups:
   - 'mylabvmsgroup'
 
 # Libvirt vNets configuration
-terraform_libvirt_networks:
+tf_libvirt_networks:
   - name: 'mylabnetwork'
     mode: 'nat'
     addresses:
       - '192.168.199.0/24'
 
 # Libvirt pools
-terraform_libvirt_pools:
+tf_libvirt_pools:
   - name: 'mylabpool'
     type: 'dir'
     path: '/lab'
 
 # Libvirt volumes
-terraform_libvirt_volumes:
+tf_libvirt_volumes:
   - volume_id: 'almalinux-8'
     file: 'almalinux-8.qcow2'
     pool: 'mylabpool'
@@ -49,7 +52,7 @@ terraform_libvirt_volumes:
     format: 'qcow2'
 
 # Libvirt cloud inits
-terraform_libvirt_cloud_inits:
+tf_libvirt_cloud_inits:
   - name: 'mylabcloudinit'
     pool: 'mylabpool'
     cfg:

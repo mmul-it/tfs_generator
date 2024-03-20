@@ -1,5 +1,5 @@
 # Libvirt Storage Pools
-{% for pool in terraform_libvirt_pools %}
+{% for pool in tf_libvirt_pools %}
 
 resource "libvirt_pool" "{{ pool.name }}" {
   name = "{{ pool.name }}"

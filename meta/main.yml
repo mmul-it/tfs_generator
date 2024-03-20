@@ -1,13 +1,13 @@
 ---
 
 galaxy_info:
-  role_name: terraform_tfs_generator
+  role_name: tfs_generator
   namespace: mmul
   author: Raoul Scarazzini (rasca@mmul.it)
   description: |
-    This role can be used to install Terraform binary and deploy Terraform
-    manifest files (.tf) starting from an Ansible inventory, to create a fully
-    atomated and idempotent Infrastructure as Code scenario.
+    This role can be used to install tf binary tool and deploy tf manifest
+    files (.tf) starting from an Ansible inventory, to create a fully atomated
+    and idempotent Infrastructure as Code scenario.
   license: license (MIT)
   min_ansible_version: '2'
   platforms:
@@ -24,7 +24,9 @@ galaxy_info:
       versions:
         - all
   galaxy_tags:
+    - tf
     - terraform
+    - opentofu
     - manifests
 
 dependencies: []

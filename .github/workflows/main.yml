@@ -22,9 +22,9 @@ jobs:
       - name: YAML files check
         run: yamllint $(find . -name *.yml -or -name *.yaml)
       - name: Ansible Linter check
-        run: ansible-lint tests/terraform_tfs_generator.yml
+        run: ansible-lint tests/tfs_generator.yml
       - name: Ansible syntax check
-        run: ansible-playbook --syntax-check tests/terraform_tfs_generator.yml
+        run: ansible-playbook --syntax-check tests/tfs_generator.yml
 
   test:
     runs-on: ubuntu-latest
@@ -35,13 +35,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Ansible effective execution (should produce terraform/*.tf files)
-        run: ansible-playbook -i tests/inventory tests/terraform_tfs_generator.yml
-      - name: Check terraform/*.tf files existence
+      - name: Ansible effective execution (should produce tf/*.tf files)
+        run: ansible-playbook -i tests/inventory tests/tfs_generator.yml
+      - name: Check tf/*.tf files existence
         run: for tf in cloud_init.tf mylabvmsgroup.vms.tf networks.tf pools.tf
              provider.tf volumes.tf; do
-              echo "Checking tests/terraform/${tf}";
-              test -f tests/terraform/${tf};
+              echo "Checking tests/tfs/${tf}";
+              test -f tests/tfs/${tf};
              done
 
   trigger_galaxy_import:

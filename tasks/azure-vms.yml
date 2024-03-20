@@ -6,6 +6,6 @@
     dest: "{{ item.dest }}"
     mode: '0640'
   with_items:
-    - {src: "azure/vms.tf.j2", dest: "{{ terraform_config_dir }}/azure/{{ group_name }}.vms.tf"}
-    - {src: "azure/disks.tf.j2", dest: "{{ terraform_config_dir }}/azure/{{ group_name }}.disks.tf"}
-    - {src: "azure/nics.tf.j2", dest: "{{ terraform_config_dir }}/azure/{{ group_name }}.nics.tf"}
+    - {src: "azure/vms.tf.j2", dest: "{{ tf_config_dir }}/azure/{{ group_name }}.vms.tf"}
+    - {src: "azure/disks.tf.j2", dest: "{{ tf_config_dir }}/azure/{{ group_name }}.disks.tf"}
+    - {src: "azure/nics.tf.j2", dest: "{{ tf_config_dir }}/azure/{{ group_name }}.nics.tf"}

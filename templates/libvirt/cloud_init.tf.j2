@@ -1,9 +1,9 @@
 # Cloud init that will be created:
-{% for cloud_init in terraform_libvirt_cloud_inits %}
+{% for cloud_init in tf_libvirt_cloud_inits %}
 # {{ cloud_init.name }} {{ cloud_init.pool | default('default') }}
 {% endfor %}
 
-{% for cloud_init in terraform_libvirt_cloud_inits %}
+{% for cloud_init in tf_libvirt_cloud_inits %}
 
 resource "libvirt_cloudinit_disk" "{{ cloud_init.name }}" {
   name      = "cloud_init_{{ cloud_init.name }}.iso"

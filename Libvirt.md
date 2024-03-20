@@ -1,4 +1,4 @@
-# Generate Terraform manifests for Libvirt provider
+# Generate tf manifests for Libvirt provider
 
 <img src="https://libvirt.org/logos/logo-square-128.png" alt="Libvirt" width="128px">
 
@@ -7,8 +7,8 @@
 After defining the Libvirt provider and its version:
 
 ```yaml
-terraform_cloud_provider: 'libvirt'
-terraform_libvirt_provider_version: '0.7.1
+tf_cloud_provider: 'libvirt'
+tf_libvirt_provider_version: '0.7.1
 ```
 
 There are several variables that can be defined to an environment deployed:
@@ -24,14 +24,14 @@ You will need a connection url (by default is local qemu system):
 
 ```yaml
 # Libvirt connection uri
-terraform_libvirt_uri: 'qemu:///system'
+tf_libvirt_uri: 'qemu:///system'
 ```
 
 The Ansible group of machines that will be part of this deployment:
 
 ```yaml
 # Which groups of machines will be processed by the role
-terraform_libvirt_vms_groups:
+tf_libvirt_vms_groups:
   - 'mylabvmsgroup'
 ```
 
@@ -40,7 +40,7 @@ set the `autostart` option to `false`):
 
 ```yaml
 # Libvirt vNets configuration
-terraform_libvirt_networks:
+tf_libvirt_networks:
   - name: 'mylabnetwork'
     mode: 'nat'
     addresses:
@@ -51,13 +51,13 @@ And finally pools, volumes and cloud-init specific configurations:
 
 ```yaml
 # Libvirt pools
-terraform_libvirt_pools:
+tf_libvirt_pools:
   - name: 'mylabpool'
     type: 'dir'
     path: '/lab'
 
 # Libvirt volumes
-terraform_libvirt_volumes:
+tf_libvirt_volumes:
   - volume_id: 'almalinux-8'
     file: 'almalinux-8.qcow2'
     pool: 'mylabpool'
@@ -65,7 +65,7 @@ terraform_libvirt_volumes:
     format: 'qcow2'
 
 # Libvirt cloud inits
-terraform_libvirt_cloud_inits:
+tf_libvirt_cloud_inits:
   - name: 'mylabcloudinit'
     pool: 'mylabpool'
     cfg:
@@ -89,7 +89,7 @@ created like this (check [tests/inventory/host_vars/myvm-1.yml](tests/inventory/
 ```yaml
 ---
 
-terraform_libvirt:
+tf_libvirt:
   name: myvm-1
   memory: 1024
   vcpu: 1
@@ -145,9 +145,9 @@ Once you've compiled the inventory, you are ready to generate your Terraform
 resource files by launching:
 
 ```console
-> ansible-playbook -i tests/inventory tests/terraform_tfs_generator.yml
+> ansible-playbook -i tests/inventory tests/tfs_generator.yml
 
-PLAY [Create Terraform manifests using terraform_tfs_generator Ansible role] ******************************************************************************
+PLAY [Create Terraform manifests using tfs_generator Ansible role] ******************************************************************************
 
 TASK [Gathering Facts] ************************************************************************************************************************************
 ok: [localhost]
@@ -159,16 +159,16 @@ PLAY RECAP *********************************************************************
 localhost                  : ok=15   changed=7    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0
 ```
 
-This will generate a `tests/terraform` directory containing all the generated
+This will generate a `tests/tf` directory containing all the generated
 manifests.
 
 ### Terraform directory structure
 
-Ansible will generate a directory structure based on the `terraform_config_dir`
+Ansible will generate a directory structure based on the `tf_config_dir`
 variable. Here, you can find this subdirectories:
 
 ```console
-tests/terraform
+tests/tf
 ├── bin
 │   └── terraform
 ├── cloud_init_mylabcloudinit.cfg
@@ -184,14 +184,14 @@ tests/terraform
 └── volumes.tf
 ```
 
-## Using Terraform binary to generate the environment
+## Using tf cmd binary to generate the environment
 
 if the user who executes the binary have the rights to
 use libvirt, then the environment will be created with no pain, first
 initializing Terraform:
 
 ```console
-(venv-ansible) rasca@catastrofe [~/Git/mmul-it/terraform_tfs_generator]> tests/terraform/bin/terraform -chdir=tests/terraform init
+(venv-ansible) rasca@catastrofe [~/Git/mmul-it/tfs_generator]> tests/tf/bin/terraform -chdir=tests/tf init
 
 Initializing the backend...
 
@@ -226,7 +226,7 @@ commands will detect it and remind you to do so if necessary.
 And then applying the manifests:
 
 ```console
-> tests/terraform/bin/terraform -chdir=tests/terraform apply -auto-approve
+> tests/tf/bin/terraform -chdir=tests/tf apply -auto-approve
 libvirt_cloudinit_disk.mylabcloudinit: Creating...
 libvirt_pool.mylabpool: Creating...
 libvirt_network.mylabnetwork: Creating...
@@ -271,7 +271,7 @@ In the defaults example file cloud-init is configured to set password to
 ...
 
 # Libvirt cloud inits
-terraform_libvirt_cloud_inits:
+tf_libvirt_cloud_inits:
   - name: 'mylabcloudinit'
     pool: 'mylabpool'
     cfg:

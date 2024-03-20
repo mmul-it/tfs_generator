@@ -29,13 +29,13 @@ terraform {
       version = "{{ azure_provider_version }}"
     }
   }
-{% if terraform_tfstate_on_azure_storage_container is defined and
+{% if tf_tfstate_on_azure_storage_container is defined and
       skip_azure_backend is not defined %}
 
   backend "azurerm" {
     resource_group_name  = "{{ azure_tfstate_resource_group_name }}"
-    storage_account_name = "{{ terraform_tfstate_on_azure_storage_container }}"
-    container_name       = "{{ terraform_tfstate_on_azure_storage_container }}"
+    storage_account_name = "{{ tf_tfstate_on_azure_storage_container }}"
+    container_name       = "{{ tf_tfstate_on_azure_storage_container }}"
     key                  = "terraform.tfstate"
   }
 {% endif %}

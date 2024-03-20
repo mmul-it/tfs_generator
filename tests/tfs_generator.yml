@@ -1,0 +1,6 @@
+---
+
+- name: Create tf manifests using tfs_generator Ansible role
+  hosts: localhost
+  roles:
+    - role: ../..
