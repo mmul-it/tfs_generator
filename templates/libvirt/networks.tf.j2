@@ -7,20 +7,20 @@
 resource "libvirt_network" "{{ network.name }}" {
     name      = "{{ network.name }}"
     mode      = "{{ network.mode }}"
-    autostart = "{{ network.autostart | default('true') }}"
+    autostart = {{ network.autostart | default('true') | lower() }}
 {% if network.domain is defined %}
     domain    = "{{ network.domain }}"
 {% endif %}
     addresses = [{% for address in network.addresses %}"{{ address }}"{%- if not loop.last -%}, {%- endif -%}{% endfor %}]
 
     dhcp {
-      enabled = {{ network.dhcp_enabled | default('true') }}
+      enabled = {{ network.dhcp_enabled | default('true') | lower() }}
     }
 
 {% if network.dns_enabled is defined and network.dns_enabled | bool %}
     dns {
       enabled = {{ network.dns_enabled }}
-￼     local_only = {{ network.dns_local_only | default('false') }}
+￼     local_only = {{ network.dns_local_only | default('false') | lower() }}
 
 {% for forwarder in libvirt_network.dns_forwarders %}
       forwarders {

@@ -25,7 +25,7 @@ resource "libvirt_volume" "{{ disk.volume_id }}" {
 # VM {{ vm.name }} specification
 resource "libvirt_domain" "{{ vm.name }}" {
   name                         = "{{ vm.name }}"
-  running                      = "{{ vm.running | default('true') | lower() }}"
+  running                      = {{ vm.running | default('true') | lower() }}
   memory                       = "{{ vm.memory }}"
   vcpu                         = "{{ vm.vcpu }}"
 
