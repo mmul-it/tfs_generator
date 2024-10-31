@@ -56,6 +56,58 @@
   loop_control:
     loop_var: tf_group_name
 
+# Generate the files_to_keep list
+- name: Create the list of .tf and .cfg files to keep
+  ansible.builtin.set_fact:
+    files_to_keep: []
+
+- name: Add to files to keep list fixed resources files
+  ansible.builtin.set_fact:
+     files_to_keep: "{{ files_to_keep + [ tf_config_dir + '/' + item + '.tf' ] }}"
+  with_items:
+    - 'provider'
+    - 'networks'
+    - 'pools'
+    - 'volumes'
+    - 'cloud_init'
+
+- name: Add to files to keep list dynamic cloud_init.cfg files
+  ansible.builtin.set_fact:
+     files_to_keep: "{{ files_to_keep + [ tf_config_dir + '/cloud_init_' + item.name + '.cfg' ] }}"
+  with_items:
+    - "{{ tf_libvirt_cloud_inits }}"
+
+- name: Add to files to keep list dynamic .vms.tf files
+  ansible.builtin.set_fact:
+    files_to_keep: "{{ files_to_keep + [ tf_config_dir + '/' + item + '.vms.tf' ] }}"
+  with_items:
+    - "{{ tf_libvirt_vms_groups }}"
+
+- name: Get the stats (including absolute paths) of the remote files
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop: "{{ files_to_keep }}"
+  register: files_to_keep_stats
+
+- name: Create a list of files to keep with absolute paths
+  set_fact:
+    files_to_keep_full_path: "{{ files_to_keep_full_path | default([]) + [ item.stat.path ] }}"
+  loop: "{{ files_to_keep_stats.results }}"
+
+# Generate the list of all files
+- name: Find all .tf and .cfg files in tf_config_dir
+  find:
+    paths: "{{ tf_config_dir }}"
+    patterns: "*.tf,*.cfg"
+  register: all_files
+
+- name: Delete files not to keep
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ all_files.files }}"
+  when: item.path not in files_to_keep_full_path
+
 - name: Display a reminder for sourcing variables
   ansible.builtin.debug:
     msg:
