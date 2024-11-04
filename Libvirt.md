@@ -286,3 +286,6 @@ tf_libvirt_cloud_inits:
 but you can check the [cloud-init documentation](https://cloudinit.readthedocs.io/en/latest/reference/examples.html)
 to see how it is possible to change `cfg` contents and so the clod-init
 behavior.
+
+Note that for each run of `tfs_generator.yml` playbook a cleanup is made to
+ensure that there are no residual `.tf` and `.cfg` files from previous runs.
