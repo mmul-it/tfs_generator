@@ -1,0 +1,54 @@
+---
+
+- name: Generate list of .tf files to keep
+  ansible.builtin.set_fact:
+    files_to_keep: []
+
+- name: Add fixed resources files to keep list
+  ansible.builtin.set_fact:
+    files_to_keep: "{{ files_to_keep + [ tf_config_dir + '/azure/' + item + '.tf' ] }}"
+  with_items:
+    - "{{ azure_resources }}"
+    - "{{ azure_vpn_resources }}"
+
+- name: Add key_vault.tf resource file to keep list
+  ansible.builtin.set_fact:
+    files_to_keep: "{{ files_to_keep + [ tf_config_dir + '/azure/key_vault.tf' }}"
+  when:
+    - azure_key_vault_enable | bool
+
+- name: Add database.tf resource file to keep list
+  ansible.builtin.set_fact:
+    files_to_keep: "{{ files_to_keep + [ tf_config_dir + '/azure/database.tf' }}"
+  when:
+    - azure_database_servers is defined
+
+- name: Add dynamic .vms.tf files to keep list
+  ansible.builtin.set_fact:
+    files_to_keep: "{{ files_to_keep + [ tf_config_dir + '/' + item + '.vms.tf' ] }}"
+  with_items:
+    - "{{ azure_vms_groups }}"
+
+- name: Get the stats (including absolute paths) of the remote files
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop: "{{ files_to_keep }}"
+  register: files_to_keep_stats
+
+- name: Create a list of files to keep with absolute paths
+  ansible.builtin.set_fact:
+    files_to_keep_full_path: "{{ files_to_keep_full_path | default([]) + [ item.stat.path ] }}"
+  loop: "{{ files_to_keep_stats.results }}"
+
+- name: Generate the list of all the .tf files
+  ansible.builtin.find:
+    paths: "{{ tf_config_dir }}"
+    patterns: "*.tf,*.cfg"
+  register: all_files
+
+- name: Effectively delete files not to keep
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ all_files.files }}"
+  when: item.path not in files_to_keep_full_path
