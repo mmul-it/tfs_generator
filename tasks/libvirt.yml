@@ -56,6 +56,9 @@
   loop_control:
     loop_var: tf_group_name
 
+- name: Cleanup Libvirt manifests and configurations
+  ansible.builtin.include_tasks: libvirt-cleanup.yml
+
 - name: Display a reminder for sourcing variables
   ansible.builtin.debug:
     msg:

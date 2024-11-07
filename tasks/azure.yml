@@ -109,6 +109,9 @@
   loop_control:
     loop_var: group_name
 
+- name: Cleanup Azure manifests
+  ansible.builtin.include_tasks: azure-cleanup.yml
+
 - name: Display a reminder for sourcing variables
   ansible.builtin.debug:
     msg:
