@@ -13,6 +13,7 @@
     - 'pools'
     - 'volumes'
     - 'cloud_init'
+    - 'coreos_ignition'
 
 - name: Add dynamic cloud_init.cfg files to keep list
   ansible.builtin.set_fact:

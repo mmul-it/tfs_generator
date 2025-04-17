@@ -36,6 +36,7 @@
     - 'pools'
     - 'volumes'
     - 'cloud_init'
+    - 'coreos_ignition'
 
 # Deploy the cloud_init.cfg, for details look at:
 # https://cloudinit.readthedocs.io/en/latest/reference/examples.html
