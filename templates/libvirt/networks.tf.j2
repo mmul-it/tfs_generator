@@ -19,29 +19,33 @@ resource "libvirt_network" "{{ network.name }}" {
 
 {% if network.dns_enabled is defined and network.dns_enabled | bool %}
     dns {
-      enabled = {{ network.dns_enabled }}
-￼     local_only = {{ network.dns_local_only | default('false') | lower() }}
+      enabled = {{ network.dns_enabled | lower() }}
+      local_only = {{ network.dns_local_only | default('false') | lower() }}
 
-{% for forwarder in libvirt_network.dns_forwarders %}
+{% for forwarder in network.dns_forwarders %}
       forwarders {
         address = "{{ forwarder.address }}"
         domain = "{{ forwarder.domain }}"
       } 
 {% endfor %}
 
-{% for host in libvirt_network.dns_hosts %}
+{% if network.dns_host is defined %}
+{% for host in network.dns_hosts %}
       hosts  {
         hostname = "{{ host.hostname }}"
         ip = "{{ host.ip }}"
       }
 {% endfor %}
+{% endif %}
 
-{% for route in libvirt_network.routes %}
+{% if network.routes is defined %}
+{% for route in network.routes %}
       routes {
         cidr = "{{ route.cidr }}"
         gateway = "{{ route.gateway }}"
       }
 {% endfor %}
+{% endif %}
 
     }
 {% endif %}
