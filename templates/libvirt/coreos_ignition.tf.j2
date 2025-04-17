@@ -1,0 +1,14 @@
+# Cloud init that will be created:
+{% for coreos_ignition in tf_libvirt_coreos_ignitions %}
+# {{ coreos_ignition.name }} {{ coreos_ignition.pool | default('default') }}
+{% endfor %}
+
+{% for coreos_ignition in tf_libvirt_coreos_ignitions %}
+
+resource "libvirt_ignition" "{{ coreos_ignition.name }}" {
+  name      = "{{ coreos_ignition.name }}"
+  pool      = "{{ coreos_ignition.pool | default('default') }}"
+  content   = "{{ coreos_ignition.content }}"
+  depends_on = [libvirt_pool.{{ coreos_ignition.pool | default('default') }}]
+}
+{% endfor %}

@@ -80,6 +80,43 @@ tf_libvirt_cloud_inits:
 In this case a user named `myuser` with password `password` will be created on
 each VM.
 
+### CoreOS ignition support
+
+CoreOS Ignition are similar to cloud init configuration, and are supported by
+the libvirt provider and so by this playbook.
+
+A typical OpenShift ignition configuration will be something like:
+
+```yaml
+tf_libvirt_coreos_ignitions:
+  - name: 'training-ootr-bootstrap'
+    pool: 'kiralab_pool'
+    content: '/root/install/training-ootr-bootstrap.ign'
+  - name: 'training-ootr-01'
+    pool: 'kiralab_pool'
+    content: '/root/install/training-ootr-01.ign'
+  - name: 'training-ootr-02'
+    pool: 'kiralab_pool'
+    content: '/root/install/training-ootr-02.ign'
+  - name: 'training-ootr-03'
+    pool: 'kiralab_pool'
+    content: '/root/install/training-ootr-03.ign'
+```
+
+Note that files should be available on the destination host, and ignitions will
+be associated in the VM as follows:
+
+```yaml
+tf_libvirt:
+  name: training-ootr-01
+  memory: 16384
+  vcpu: 4
+  cpu_mode: 'host-passthrough'
+  coreos_ignition: 'training-ootr-01'
+...
+...
+```
+
 ### Per host variables
 
 For each VM you'll want to deploy in Libvirt a
