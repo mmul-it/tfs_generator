@@ -1,4 +1,5 @@
 # Cloud init that will be created:
+{% if  tf_libvirt_cloud_inits is defined %}
 {% for cloud_init in tf_libvirt_cloud_inits %}
 # {{ cloud_init.name }} {{ cloud_init.pool | default('default') }}
 {% endfor %}
@@ -15,3 +16,4 @@ data "template_file" "user_data_{{ cloud_init.name }}" {
   template = file("${path.module}/cloud_init_{{ cloud_init.name }}.cfg")
 }
 {% endfor %}
+{% endif %}
